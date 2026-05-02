@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gospel Grace Education | Complete Admin Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f4f9; color: #1a2c3e; }
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(8, 28, 36, 0.96);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: white;
+            max-width: 500px;
+            width: 90%;
+            padding: 36px 32px;
+            border-radius: 32px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .login-card h2 { color: #0b3b4f; margin-bottom: 8px; }
+        .select-role, .password-field input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 60px;
+            border: 1.5px solid #e2e8f0;
+            margin-bottom: 16px;
+            font-size: 1rem;
+        }
+        .login-btn {
+            background: #1e6f5c;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 14px;
+            border-radius: 60px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .login-btn:hover { background: #0f5545; }
+        .error-msg { color: #c2410c; margin-top: 12px; font-size: 0.85rem; }
+        .admin-wrapper { display: none; min-height: 100vh; }
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #0a2f3f 0%, #06212e 100%);
+            color: #eef4ff;
+            flex-shrink: 0;
+        }
+        .logo-area { padding: 28px 24px; border-bottom: 1px solid #2a4b5e; }
+        .logo-area h2 { font-weight: 800; background: linear-gradient(135deg,#fff,#b9e2f5); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 20px;
+            margin: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item.active, .nav-item:hover { background: #2c6e7e40; }
+        .main-content { flex: 1; overflow-x: auto; }
+        .top-bar { background: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .dashboard-container { padding: 28px 32px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 24px; margin-bottom: 32px; }
+        .stat-card { background: white; border-radius: 28px; padding: 22px; box-shadow: 0 5px 12px rgba(0,0,0,0.03); border: 1px solid #eef2ff; }
+        .stat-title { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #5e7e9e; }
+        .stat-number { font-size: 2.3rem; font-weight: 800; color: #115c6b; }
+        .section-title { font-size: 1.3rem; font-weight: 700; margin: 28px 0 18px 0; border-left: 5px solid #2c7da0; padding-left: 18px; display: flex; justify-content: space-between; align-items: center; }
+        .panel-card { background: white; border-radius: 28px; margin-bottom: 32px; overflow-x: auto; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .panel-header { padding: 18px 24px; border-bottom: 1px solid #edf2f7; display: flex; justify-content: space-between; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 500px; }
+        th, td { padding: 14px 20px; text-align: left; border-bottom: 1px solid #f0f4fa; }
+        th { background: #f8fafc; font-weight: 600; color: #1e4a62; }
+        .badge-active { background: #dff3e8; color: #1e6f3f; padding: 5px 12px; border-radius: 40px; font-size: 0.75rem; font-weight: 600; }
+        .badge-pending { background: #fff3e3; color: #c47b2e; padding: 5px 12px; border-radius: 40px; font-size: 0.75rem; }
+        .btn-sm { background: #eef2fc; border: none; padding: 8px 16px; border-radius: 40px; cursor: pointer; font-weight: 500; margin-left: 8px; transition: all 0.2s; }
+        .btn-sm:hover { background: #e2e8f0; }
+        .btn-primary { background: #1e6f5c; color: white; }
+        .btn-primary:hover { background: #0f5545; color: white; }
+        .action-icon { margin: 0 6px; cursor: pointer; color: #5a7b9c; transition: color 0.2s; }
+        .action-icon:hover { color: #c2410c; }
+        .action-icon.edit:hover { color: #2c7da0; }
+        .modal {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000;
+        }
+        .modal-content {
+            background: white; padding: 28px; border-radius: 28px; width: 90%; max-width: 500px;
+        }
+        .modal-content input, .modal-content select {
+            width: 100%; padding: 12px; margin: 8px 0 16px; border: 1px solid #ccc; border-radius: 60px;
+        }
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e6f5c;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        .footer-note { text-align: center; font-size: 0.7rem; padding: 20px; color: #8ba0b5; }
+        @media (max-width: 780px) { .sidebar { width: 80px; } .sidebar span { display: none; } }
+        .loading-skeleton { text-align: center; padding: 40px; }
+    </style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+    <div class="login-card">
+        <i class="fas fa-church" style="font-size: 48px; color: #1e6f5c;"></i>
+        <h2>Gospel Grace Education</h2>
+        <p>Complete Admin Portal • Full Cloud Sync</p>
+        
+        <div class="setup-instruction" style="background:#e8f4f0; padding:12px; border-radius:12px; margin:16px 0; font-size:0.8rem;">
+            ✅ <strong>All Data</strong> (Students, Courses, Admissions, ISR) stored permanently in SheetDB
+        </div>
+        
+        <select id="roleSelect" class="select-role">
+            <option value="">-- Select Admin Role --</option>
+            <option value="Adminsupport(GGE)">@Adminsupport(GGE)</option>
+            <option value="Adminsupport2 (GGE)">@Adminsupport2 (GGE)</option>
+            <option value="Founder & Director">@Founder & Director</option>
+            <option value="Marketingadmin">@Marketingadmin</option>
+            <option value="Viralmedia">@Viralmedia</option>
+            <option value="Supporttecwithamey">@Supporttecwithamey</option>
+            <option value="Team Lead (TWA)">@Team Lead (TWA)</option>
+            <option value="Vice Director">@Vice Director</option>
+        </select>
+        
+        <div class="password-field">
+            <input type="password" id="loginPassword" placeholder="Enter Password">
+        </div>
+        
+        <button class="login-btn" id="doLoginBtn"><i class="fas fa-cloud-upload-alt"></i> Access Hub</button>
+        <div id="loginError" class="error-msg"></div>
+    </div>
+</div>
+
+<div class="admin-wrapper" id="adminApp">
+    <aside class="sidebar">
+        <div class="logo-area">
+            <h2><i class="fas fa-church"></i> GraceHub</h2>
+            <p>Complete Cloud Suite</p>
+        </div>
+        <div class="nav-menu">
+            <div class="nav-item active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></div>
+            <div class="nav-item" data-tab="students"><i class="fas fa-user-graduate"></i> <span>Students</span></div>
+            <div class="nav-item" data-tab="courses"><i class="fas fa-book-open"></i> <span>Courses</span></div>
+            <div class="nav-item" data-tab="applications"><i class="fas fa-file-alt"></i> <span>Admissions</span></div>
+            <div class="nav-item" data-tab="isr"><i class="fas fa-hand-holding-heart"></i> <span>ISR & Support</span></div>
+            <div class="nav-item" data-tab="reports"><i class="fas fa-chart-line"></i> <span>Reports</span></div>
+        </div>
+        <div class="admin-badge" style="padding: 20px;">
+            <i class="fas fa-user-shield"></i> <span id="currentRoleName">Admin</span><br>
+            <span style="font-size:0.65rem;"><i class="fas fa-cloud"></i> Full Cloud Sync</span>
+        </div>
+    </aside>
+    
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title"><h1>Complete Admin Hub <span>| All Data Persists</span></h1></div>
+            <div><button class="btn-sm" id="logoutBtn" style="background:#f1f5f9;"> Logout</button></div>
+        </div>
+        
+        <div class="dashboard-container" id="dynamicContent">
+            <div class="loading-skeleton"><i class="fas fa-spinner fa-pulse"></i> Loading all data from cloud...</div>
+        </div>
+        <div class="footer-note"><i class="fas fa-praying-hands"></i> Grace led · Faithful stewardship · All changes saved permanently</div>
+    </div>
+    <div class="sync-status" id="syncStatus"><i class="fas fa-cloud"></i> Ready</div>
+</div>
+
+<!-- Modal for adding/editing -->
+<div id="genericModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Add Item</h3>
+        <div id="modalFields"></div>
+        <button id="modalSaveBtn" class="btn-sm btn-primary">Save</button>
+        <button id="modalCloseBtn" class="btn-sm">Cancel</button>
+    </div>
+</div>
+
+<script>
+    // ==================== CREDENTIALS ====================
+    const VALID_CREDENTIALS = {
+        "Adminsupport(GGE)": "Grace@2025#Hub",
+        "Adminsupport2 (GGE)": "Gospel$Admin22",
+        "Founder & Director": "F0under!Grace",
+        "Marketingadmin": "M@rketGGE77",
+        "Viralmedia": "Viral!Media2025",
+        "Supporttecwithamey": "Support@tecGGE",
+        "Team Lead (TWA)": "LeadTWA$Grace",
+        "Vice Director": "VDirector!GGE2025"
+    };
+    
+    // SheetDB Endpoints (each sheet/table)
+    const SHEETDB_BASE = "https://sheetdb.io/api/v1/c2yz1g1ac1e0j";
+    const ENDPOINTS = {
+        students: `${SHEETDB_BASE}/students`,
+        courses: `${SHEETDB_BASE}/courses`,
+        applications: `${SHEETDB_BASE}/applications`,
+        isr: `${SHEETDB_BASE}/isr`
+    };
+    
+    // Global data stores
+    let appData = {
+        students: [],
+        courses: [],
+        applications: [],
+        isr: []
+    };
+    
+    let currentTab = "dashboard";
+    let currentEditItem = null;
+    let currentModalType = null;
+    
+    // Helper: Update sync status
+    function updateSyncStatus(message, type) {
+        const el = document.getElementById('syncStatus');
+        if (el) {
+            el.innerHTML = `<i class="fas fa-cloud"></i> ${message}`;
+            el.style.background = type === 'error' ? '#c2410c' : (type === 'warning' ? '#e67e22' : '#1e6f5c');
+            setTimeout(() => { 
+                if (el.innerHTML.includes(message)) {
+                    el.innerHTML = `<i class="fas fa-cloud"></i> Ready`;
+                    el.style.background = '#1e6f5c';
+                }
+            }, 2500);
+        }
+    }
+    
+    // Generic API call to fetch any sheet
+    async function fetchSheet(sheetName) {
+        try {
+            const response = await fetch(ENDPOINTS[sheetName]);
+            const data = await response.json();
+            if (Array.isArray(data)) return data;
+            return [];
+        } catch (error) {
+            console.error(`Error fetching ${sheetName}:`, error);
+            return [];
+        }
+    }
+    
+    // Generic API to save entire sheet (PUT)
+    async function saveSheet(sheetName, dataArray) {
+        try {
+            const response = await fetch(ENDPOINTS[sheetName], {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dataArray)
+            });
+            if (response.ok) {
+                updateSyncStatus(`✓ ${sheetName} saved`, "success");
+                return true;
+            }
+            throw new Error(`Failed to save ${sheetName}`);
+        } catch (error) {
+            console.error(error);
+            updateSyncStatus(`⚠️ ${sheetName} save failed`, "error");
+            return false;
+        }
+    }
+    
+    // Load all data from all sheets
+    async function loadAllData() {
+        updateSyncStatus("Loading all data...", "info");
+        try {
+            const [students, courses, applications, isr] = await Promise.all([
+                fetchSheet('students'),
+                fetchSheet('courses'),
+                fetchSheet('applications'),
+                fetchSheet('isr')
+            ]);
+            
+            appData.students = students.length ? students : [];
+            appData.courses = courses.length ? courses : getDefaultCourses();
+            appData.applications = applications.length ? applications : getDefaultApplications();
+            appData.isr = isr.length ? isr : getDefaultISR();
+            
+            updateSyncStatus("All data loaded from cloud", "success");
+            renderAll();
+        } catch (error) {
+            console.error("Load error:", error);
+            appData.students = getDefaultStudents();
+            appData.courses = getDefaultCourses();
+            appData.applications = getDefaultApplications();
+            appData.isr = getDefaultISR();
+            updateSyncStatus("Using defaults - check connection", "error");
+            renderAll();
+        }
+    }
+    
+    // Default data
+    function getDefaultStudents() { return [
+        { id: "S1001", name: "Michael Thompson", email: "michael@grace.edu", enrollment: "Theology", status: "Active" },
+        { id: "S1002", name: "Sarah Jenkins", email: "sarah@grace.edu", enrollment: "Counseling", status: "Active" }
+    ]; }
+    function getDefaultCourses() { return [
+        { code: "THEO501", title: "Systematic Theology I", instructor: "Dr. A. Brooks", enrolled: 34, status: "Active" },
+        { code: "BIBL304", title: "Hermeneutics", instructor: "Prof. L. Chen", enrolled: 28, status: "Active" }
+    ]; }
+    function getDefaultApplications() { return [
+        { id: "APP001", applicant: "Mary Williams", program: "Bachelor of Theology", date: "2025-02-10", status: "Under Review" }
+    ]; }
+    function getDefaultISR() { return [
+        { id: "ISR101", student: "Michael Thompson", type: "Financial Aid", amount: "$450", status: "Pending", date: "2025-03-01" }
+    ]; }
+    
+    // CRUD Operations with auto-save
+    async function addItem(type, newItem) {
+        if (type === 'students') {
+            const newId = "S" + (1000 + appData.students.length + 1);
+            appData.students.push({ ...newItem, id: newId, status: newItem.status || "Active" });
+            await saveSheet('students', appData.students);
+        } else if (type === 'courses') {
+            appData.courses.push({ ...newItem });
+            await saveSheet('courses', appData.courses);
+        } else if (type === 'applications') {
+            const newId = "APP" + String(100 + appData.applications.length + 1).slice(1);
+            appData.applications.push({ ...newItem, id: newId, date: new Date().toISOString().slice(0,10) });
+            await saveSheet('applications', appData.applications);
+        } else if (type === 'isr') {
+            const newId = "ISR" + (200 + appData.isr.length + 1);
+            appData.isr.push({ ...newItem, id: newId, date: new Date().toISOString().slice(0,10) });
+            await saveSheet('isr', appData.isr);
+        }
+        renderAll();
+    }
+    
+    async function deleteItem(type, id) {
+        let confirmMsg = confirm(`Delete this ${type} item?`);
+        if (!confirmMsg) return;
+        if (type === 'students') {
+            appData.students = appData.students.filter(s => s.id != id);
+            await saveSheet('students', appData.students);
+        } else if (type === 'courses') {
+            appData.courses = appData.courses.filter(c => c.code != id);
+            await saveSheet('courses', appData.courses);
+        } else if (type === 'applications') {
+            appData.applications = appData.applications.filter(a => a.id != id);
+            await saveSheet('applications', appData.applications);
+        } else if (type === 'isr') {
+            appData.isr = appData.isr.filter(i => i.id != id);
+            await saveSheet('isr', appData.isr);
+        }
+        renderAll();
+    }
+    
+    async function updateItem(type, id, updatedFields) {
+        if (type === 'students') {
+            const index = appData.students.findIndex(s => s.id == id);
+            if (index !== -1) { appData.students[index] = { ...appData.students[index], ...updatedFields }; await saveSheet('students', appData.students); }
+        } else if (type === 'courses') {
+            const index = appData.courses.findIndex(c => c.code == id);
+            if (index !== -1) { appData.courses[index] = { ...appData.courses[index], ...updatedFields }; await saveSheet('courses', appData.courses); }
+        } else if (type === 'applications') {
+            const index = appData.applications.findIndex(a => a.id == id);
+            if (index !== -1) { appData.applications[index] = { ...appData.applications[index], ...updatedFields }; await saveSheet('applications', appData.applications); }
+        } else if (type === 'isr') {
+            const index = appData.isr.findIndex(i => i.id == id);
+            if (index !== -1) { appData.isr[index] = { ...appData.isr[index], ...updatedFields }; await saveSheet('isr', appData.isr); }
+        }
+        renderAll();
+    }
+    
+    // Export CSV
+    function exportToCSV(type) {
+        let data = appData[type];
+        if (!data.length) { alert("No data to export"); return; }
+        let headers = Object.keys(data[0]);
+        let csv = headers.join(",") + "\n";
+        data.forEach(row => {
+            csv += headers.map(h => `"${row[h] || ''}"`).join(",") + "\n";
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${type}_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        updateSyncStatus(`✓ ${type} CSV exported`, "success");
+    }
+    
+    // Modal handlers
+    function showModal(type, editItem = null) {
+        currentModalType = type;
+        currentEditItem = editItem;
+        const modal = document.getElementById('genericModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalFields = document.getElementById('modalFields');
+        
+        if (editItem) {
+            modalTitle.innerText = `Edit ${type.slice(0,-1)}`;
+        } else {
+            modalTitle.innerText = `Add New ${type.slice(0,-1)}`;
+        }
+        
+        let fieldsHtml = '';
+        if (type === 'students') {
+            fieldsHtml = `
+                <label>Name</label><input id="field_name" value="${editItem?.name || ''}" placeholder="Full Name">
+                <label>Email</label><input id="field_email" value="${editItem?.email || ''}" placeholder="Email">
+                <label>Program</label><input id="field_enrollment" value="${editItem?.enrollment || ''}" placeholder="Program">
+                <label>Status</label><select id="field_status"><option ${editItem?.status === 'Active' ? 'selected' : ''}>Active</option><option ${editItem?.status === 'Inactive' ? 'selected' : ''}>Inactive</option></select>
+            `;
+        } else if (type === 'courses') {
+            fieldsHtml = `
+                <label>Course Code</label><input id="field_code" value="${editItem?.code || ''}" placeholder="e.g., THEO501">
+                <label>Title</label><input id="field_title" value="${editItem?.title || ''}" placeholder="Course Title">
+                <label>Instructor</label><input id="field_instructor" value="${editItem?.instructor || ''}" placeholder="Instructor">
+                <label>Enrolled</label><input id="field_enrolled" value="${editItem?.enrolled || 0}" type="number">
+            `;
+        } else if (type === 'applications') {
+            fieldsHtml = `
+                <label>Applicant Name</label><input id="field_applicant" value="${editItem?.applicant || ''}">
+                <label>Program</label><input id="field_program" value="${editItem?.program || ''}">
+                <label>Status</label><select id="field_status"><option>Under Review</option><option>Accepted</option><option>Rejected</option></select>
+            `;
+        } else if (type === 'isr') {
+            fieldsHtml = `
+                <label>Student Name</label><input id="field_student" value="${editItem?.student || ''}">
+                <label>Request Type</label><input id="field_type" value="${editItem?.type || ''}" placeholder="Financial Aid, Tech Support, etc">
+                <label>Amount (if any)</label><input id="field_amount" value="${editItem?.amount || ''}">
+                <label>Status</label><select id="field_status"><option ${editItem?.status === 'Pending' ? 'selected' : ''}>Pending</option><option ${editItem?.status === 'Approved' ? 'selected' : ''}>Approved</option><option ${editItem?.status === 'Completed' ? 'selected' : ''}>Completed</option></select>
+            `;
+        }
+        modalFields.innerHTML = fieldsHtml;
+        modal.style.display = 'flex';
+    }
+    
+    document.getElementById('modalSaveBtn')?.addEventListener('click', async () => {
+        const type = currentModalType;
+        let newData = {};
+        if (type === 'students') {
+            newData = { name: document.getElementById('field_name').value, email: document.getElementById('field_email').value, enrollment: document.getElementById('field_enrollment').value, status: document.getElementById('field_status').value };
+            if (currentEditItem) await updateItem(type, currentEditItem.id, newData);
+            else await addItem(type, newData);
+        } else if (type === 'courses') {
+            newData = { code: document.getElementById('field_code').value, title: document.getElementById('field_title').value, instructor: document.getElementById('field_instructor').value, enrolled: parseInt(document.getElementById('field_enrolled').value) };
+            if (currentEditItem) await updateItem(type, currentEditItem.code, newData);
+            else await addItem(type, newData);
+        } else if (type === 'applications') {
+            newData = { applicant: document.getElementById('field_applicant').value, program: document.getElementById('field_program').value, status: document.getElementById('field_status').value };
+            if (currentEditItem) await updateItem(type, currentEditItem.id, newData);
+            else await addItem(type, newData);
+        } else if (type === 'isr') {
+            newData = { student: document.getElementById('field_student').value, type: document.getElementById('field_type').value, amount: document.getElementById('field_amount').value, status: document.getElementById('field_status').value };
+            if (currentEditItem) await updateItem(type, currentEditItem.id, newData);
+            else await addItem(type, newData);
+        }
+        document.getElementById('genericModal').style.display = 'none';
+        currentEditItem = null;
+    });
+    document.getElementById('modalCloseBtn')?.addEventListener('click', () => {
+        document.getElementById('genericModal').style.display = 'none';
+        currentEditItem = null;
+    });
+    
+    // Render functions
+    function renderDashboard() {
+        const totalStudents = appData.students.length;
+        const activeStudents = appData.students.filter(s => s.status === 'Active').length;
+        const pendingApps = appData.applications.filter(a => a.status === 'Under Review').length;
+        const pendingISR = appData.isr.filter(i => i.status === 'Pending').length;
+        const html = `
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-title">Total Students</div><div class="stat-number">${totalStudents}</div></div>
+                <div class="stat-card"><div class="stat-title">Active Students</div><div class="stat-number">${activeStudents}</div></div>
+                <div class="stat-card"><div class="stat-title">Courses Active</div><div class="stat-number">${appData.courses.length}</div></div>
+                <div class="stat-card"><div class="stat-title">Pending Admissions</div><div class="stat-number">${pendingApps}</div></div>
+                <div class="stat-card"><div class="stat-title">Open ISR</div><div class="stat-number">${pendingISR}</div></div>
+            </div>
+            <div class="section-title"><span><i class="fas fa-users"></i> Recent Students</span><button class="btn-sm" onclick="exportToCSV('students')"><i class="fas fa-file-excel"></i> Export CSV</button></div>
+            <div class="panel-card"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Program</th><th>Status</th></tr></thead><tbody>${appData.students.slice(0,5).map(s => `<tr><td>${s.id}</td><td>${s.name}</td><td>${s.email}</td><td>${s.enrollment}</td><td><span class="badge-active">${s.status}</span></td></tr>`).join('')}</tbody></table></div>
+        `;
+        document.getElementById('dynamicContent').innerHTML = html;
+    }
+    
+    function renderStudents() {
+        const html = `
+            <div class="section-title"><span><i class="fas fa-user-graduate"></i> Student Management</span><div><button class="btn-sm" onclick="showModal('students')"><i class="fas fa-plus"></i> Add Student</button><button class="btn-sm" onclick="exportToCSV('students')"><i class="fas fa-file-excel"></i> Export</button></div></div>
+            <div class="panel-card"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Program</th><th>Status</th><th>Actions</th></tr></thead><tbody>${appData.students.map(s => `<tr><td>${s.id}</td><td>${s.name}</td><td>${s.email}</td><td>${s.enrollment}</td><td><span class="badge-active">${s.status}</span></td><td><i class="fas fa-edit action-icon edit" data-type="students" data-id="${s.id}" data-item='${JSON.stringify(s)}'></i> <i class="fas fa-trash action-icon" data-del="students|${s.id}"></i></td></tr>`).join('')}</tbody></table></div>
+        `;
+        document.getElementById('dynamicContent').innerHTML = html;
+        attachDeleteEvents(); attachEditEvents();
+    }
+    
+    function renderCourses() {
+        const html = `<div class="section-title"><span><i class="fas fa-book-open"></i> Courses</span><div><button class="btn-sm" onclick="showModal('courses')"><i class="fas fa-plus"></i> Add Course</button><button class="btn-sm" onclick="exportToCSV('courses')"><i class="fas fa-file-excel"></i> Export</button></div></div>
+        <div class="panel-card"><table><thead><tr><th>Code</th><th>Title</th><th>Instructor</th><th>Enrolled</th><th>Actions</th></tr></thead><tbody>${appData.courses.map(c => `<tr><td>${c.code}</td><td>${c.title}</td><td>${c.instructor}</td><td>${c.enrolled}</td><td><i class="fas fa-edit action-icon edit" data-type="courses" data-id="${c.code}" data-item='${JSON.stringify(c)}'></i> <i class="fas fa-trash action-icon" data-del="courses|${c.code}"></i></td></tr>`).join('')}</tbody></table></div>`;
+        document.getElementById('dynamicContent').innerHTML = html;
+        attachDeleteEvents(); attachEditEvents();
+    }
+    
+    function renderApplications() {
+        const html = `<div class="section-title"><span><i class="fas fa-file-alt"></i> Admissions</span><div><button class="btn-sm" onclick="showModal('applications')"><i class="fas fa-plus"></i> Add Application</button><button class="btn-sm" onclick="exportToCSV('applications')"><i class="fas fa-file-excel"></i> Export</button></div></div>
+        <div class="panel-card"><table><thead><tr><th>ID</th><th>Applicant</th><th>Program</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${appData.applications.map(a => `<tr><td>${a.id}</td><td>${a.applicant}</td><td>${a.program}</td><td>${a.date}</td><td>${a.status}</td><td><i class="fas fa-edit action-icon edit" data-type="applications" data-id="${a.id}" data-item='${JSON.stringify(a)}'></i> <i class="fas fa-trash action-icon" data-del="applications|${a.id}"></i></td></tr>`).join('')}</tbody></table></div>`;
+        document.getElementById('dynamicContent').innerHTML = html;
+        attachDeleteEvents(); attachEditEvents();
+    }
+    
+    function renderISRSupport() {
+        const html = `<div class="section-title"><span><i class="fas fa-hand-holding-heart"></i> ISR & Support</span><div><button class="btn-sm" onclick="showModal('isr')"><i class="fas fa-plus"></i> Add Request</button><button class="btn-sm" onclick="exportToCSV('isr')"><i class="fas fa-file-excel"></i> Export</button></div></div>
+        <div class="panel-card"><table><thead><tr><th>ID</th><th>Student</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${appData.isr.map(i => `<tr><td>${i.id}</td><td>${i.student}</td><td>${i.type}</td><td>${i.amount}</td><td>${i.status}</td><td>${i.date}</td><td><i class="fas fa-edit action-icon edit" data-type="isr" data-id="${i.id}" data-item='${JSON.stringify(i)}'></i> <i class="fas fa-trash action-icon" data-del="isr|${i.id}"></i></td></tr>`).join('')}</tbody></table></div>`;
+        document.getElementById('dynamicContent').innerHTML = html;
+        attachDeleteEvents(); attachEditEvents();
+    }
+    
+    function renderReports() {
+        const active = appData.students.filter(s=>s.status==='Active').length;
+        const pendingApps = appData.applications.filter(a=>a.status==='Under Review').length;
+        const html = `<div class="section-title">Analytics & Reports</div><div class="stats-grid"><div class="stat-card"><div class="stat-title">Total Students</div><div class="stat-number">${appData.students.length}</div></div><div class="stat-card"><div class="stat-title">Active Students</div><div class="stat-number">${active}</div></div><div class="stat-card"><div class="stat-title">Pending Admissions</div><div class="stat-number">${pendingApps}</div></div><div class="stat-card"><div class="stat-title">ISR Requests</div><div class="stat-number">${appData.isr.length}</div></div></div><div class="chart-row"><div class="chart-box"><canvas id="studentChart"></canvas></div></div>`;
+        document.getElementById('dynamicContent').innerHTML = html;
+        setTimeout(() => { const ctx = document.getElementById('studentChart')?.getContext('2d'); if(ctx) new Chart(ctx, { type: 'bar', data: { labels: ['Total Students', 'Active', 'Courses', 'ISR'], datasets: [{ data: [appData.students.length, active, appData.courses.length, appData.isr.length], backgroundColor: ['#2c7da0', '#52b788', '#f4a261', '#e76f51'] }] } }); }, 100);
+    }
+    
+    function attachDeleteEvents() {
+        document.querySelectorAll('[data-del]').forEach(el => {
+            el.removeEventListener('click', window._delHandler);
+            const [type, id] = el.getAttribute('data-del').split('|');
+            const handler = () => deleteItem(type, id);
+            el.addEventListener('click', handler);
+            el._delHandler = handler;
+        });
+    }
+    function attachEditEvents() {
+        document.querySelectorAll('.action-icon.edit').forEach(el => {
+            el.removeEventListener('click', window._editHandler);
+            const type = el.getAttribute('data-type');
+            const id = el.getAttribute('data-id');
+            const itemStr = el.getAttribute('data-item');
+            let item = null;
+            try { item = JSON.parse(itemStr); } catch(e) { item = { id: id }; }
+            const handler = () => showModal(type, item);
+            el.addEventListener('click', handler);
+            el._editHandler = handler;
+        });
+    }
+    
+    function renderAll() {
+        if (currentTab === 'dashboard') renderDashboard();
+        else if (currentTab === 'students') renderStudents();
+        else if (currentTab === 'courses') renderCourses();
+        else if (currentTab === 'applications') renderApplications();
+        else if (currentTab === 'isr') renderISRSupport();
+        else if (currentTab === 'reports') renderReports();
+    }
+    
+    function setActiveTab(tab) { currentTab = tab; document.querySelectorAll('.nav-item').forEach(el => { if(el.getAttribute('data-tab') === tab) el.classList.add('active'); else el.classList.remove('active'); }); renderAll(); }
+    
+    // Login
+    document.getElementById('doLoginBtn')?.addEventListener('click', async () => {
+        const role = document.getElementById('roleSelect').value;
+        const pwd = document.getElementById('loginPassword').value;
+        if (!role || !VALID_CREDENTIALS[role]) { document.getElementById('loginError').innerText = "Invalid role"; return; }
+        if (VALID_CREDENTIALS[role] === pwd) {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'flex';
+            document.getElementById('currentRoleName').innerText = role;
+            await loadAllData();
+            document.querySelectorAll('.nav-item').forEach(nav => nav.addEventListener('click', () => setActiveTab(nav.getAttribute('data-tab'))));
+            document.getElementById('logoutBtn')?.addEventListener('click', () => location.reload());
+        } else { document.getElementById('loginError').innerText = "Wrong password"; }
+    });
+    
+    window.showModal = showModal;
+    window.exportToCSV = exportToCSV;
+    window.deleteItem = deleteItem;
+</script>
+</body>
+</html>
