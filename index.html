@@ -2,117 +2,86 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GGE Complete Admin Hub | All Tabs Working</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GGE Unity Hub | Google Apps Script Backend</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background: #f0f4f9; color: #1a2c3e; }
+        
         .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(8, 28, 36, 0.96);
-            backdrop-filter: blur(10px);
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(8, 28, 36, 0.96); backdrop-filter: blur(10px);
+            z-index: 2000; display: flex; align-items: center; justify-content: center;
         }
         .login-card {
-            background: white;
-            max-width: 500px;
-            width: 90%;
-            padding: 36px 32px;
-            border-radius: 32px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            background: white; max-width: 520px; width: 90%; padding: 36px 32px;
+            border-radius: 32px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         }
         .login-card h2 { color: #0b3b4f; margin-bottom: 8px; }
         .select-role, .password-field input {
-            width: 100%;
-            padding: 14px 16px;
-            border-radius: 60px;
-            border: 1.5px solid #e2e8f0;
-            margin-bottom: 16px;
-            font-size: 1rem;
+            width: 100%; padding: 14px 16px; border-radius: 60px;
+            border: 1.5px solid #e2e8f0; margin-bottom: 16px; font-size: 1rem;
         }
-        .login-btn {
-            background: #1e6f5c;
-            color: white;
-            border: none;
-            width: 100%;
-            padding: 14px;
-            border-radius: 60px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 1rem;
-        }
+        .login-btn { background: #1e6f5c; color: white; border: none; width: 100%; padding: 14px; border-radius: 60px; font-weight: 700; cursor: pointer; font-size: 1rem; }
         .login-btn:hover { background: #0f5545; }
         .error-msg { color: #c2410c; margin-top: 12px; }
+        
         .admin-wrapper { display: none; min-height: 100vh; }
+        
         .sidebar {
             width: 280px;
             background: linear-gradient(180deg, #0a2f3f 0%, #06212e 100%);
-            color: #eef4ff;
-            flex-shrink: 0;
-            overflow-y: auto;
+            color: #eef4ff; flex-shrink: 0; overflow-y: auto;
         }
         .logo-area { padding: 28px 24px; border-bottom: 1px solid #2a4b5e; }
         .logo-area h2 { font-weight: 800; background: linear-gradient(135deg,#fff,#b9e2f5); -webkit-background-clip: text; background-clip: text; color: transparent; }
         .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 20px;
-            margin: 6px 12px;
-            border-radius: 16px;
-            cursor: pointer;
+            display: flex; align-items: center; gap: 14px; padding: 12px 20px;
+            margin: 6px 12px; border-radius: 16px; cursor: pointer; transition: 0.2s;
         }
         .nav-item.active, .nav-item:hover { background: #2c6e7e40; }
         .nav-divider { height: 1px; background: #2a4b5e; margin: 12px 20px; }
+        
         .main-content { flex: 1; overflow-x: auto; }
-        .top-bar { background: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; }
+        .top-bar { background: white; padding: 16px 32px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2edf2; }
         .dashboard-container { padding: 28px 32px; }
+        
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 20px; margin-bottom: 32px; }
         .stat-card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .stat-number { font-size: 2rem; font-weight: 800; color: #115c6b; }
         .section-title { font-size: 1.2rem; font-weight: 700; margin: 24px 0 16px 0; border-left: 4px solid #2c7da0; padding-left: 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        .panel-card { background: white; border-radius: 24px; margin-bottom: 24px; overflow-x: auto; }
+        .panel-card { background: white; border-radius: 24px; margin-bottom: 24px; overflow-x: auto; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        
         table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
         th, td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #edf2f7; }
         th { background: #f8fafc; font-weight: 600; }
         .badge { background: #dff3e8; color: #1e6f3f; padding: 4px 12px; border-radius: 40px; font-size: 0.75rem; }
-        .btn-sm { background: #eef2fc; border: none; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; margin-left: 6px; }
+        .badge-role { background: #e9ecef; color: #2c3e50; padding: 4px 10px; border-radius: 40px; font-size: 0.7rem; font-weight: 500; }
+        
+        .btn-sm { background: #eef2fc; border: none; padding: 6px 14px; border-radius: 40px; cursor: pointer; font-size: 0.8rem; margin-left: 6px; transition: 0.2s; }
         .btn-primary { background: #1e6f5c; color: white; }
-        .action-icon { margin: 0 4px; cursor: pointer; color: #5a7b9c; }
+        .action-icon { margin: 0 4px; cursor: pointer; color: #5a7b9c; transition: 0.2s; }
         .action-icon:hover { color: #c2410c; }
+        
         .modal {
-            display: none;
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 3000;
         }
-        .modal-content {
-            background: white; padding: 28px; border-radius: 24px; width: 90%; max-width: 450px;
-        }
-        .modal-content input, .modal-content select {
-            width: 100%; padding: 10px; margin: 8px 0 16px; border: 1px solid #ddd; border-radius: 40px;
-        }
-        .sync-status {
-            position: fixed; bottom: 20px; right: 20px; background: #1e6f5c; color: white;
-            padding: 6px 16px; border-radius: 40px; font-size: 0.7rem; z-index: 100;
-        }
-        .form-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap: 20px; margin-top: 20px; }
-        .form-card { background: white; border-radius: 24px; padding: 24px; text-align: center; cursor: pointer; border: 1px solid #eef2ff; transition: all 0.2s; }
-        .form-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .form-icon { font-size: 40px; margin-bottom: 12px; }
-        .sheet-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; cursor: pointer; transition: all 0.2s; }
+        .modal-content { background: white; padding: 28px; border-radius: 24px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-content input, .modal-content select { width: 100%; padding: 10px 12px; margin: 8px 0 16px; border: 1px solid #ddd; border-radius: 40px; }
+        
+        .sync-status { position: fixed; bottom: 20px; right: 20px; background: #1e6f5c; color: white; padding: 6px 16px; border-radius: 40px; font-size: 0.7rem; z-index: 100; cursor: pointer; }
+        .form-card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap: 20px; margin-top: 20px; }
+        .form-card { background: white; border-radius: 24px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; border: 1px solid #eef2ff; }
+        .form-card:hover { transform: translateY(-3px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
+        .sheet-card { background: white; border-radius: 24px; padding: 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; cursor: pointer; transition: 0.2s; }
         .sheet-card:hover { background: #f8fafc; }
         .footer-note { text-align: center; font-size: 0.7rem; padding: 20px; color: #8ba0b5; }
+        .storage-info { background: #1e6f5c20; border-radius: 12px; padding: 8px 12px; font-size: 0.7rem; margin-top: 8px; }
+        
         @media (max-width: 780px) { .sidebar { width: 70px; } .sidebar span { display: none; } }
     </style>
 </head>
@@ -122,55 +91,62 @@
     <div class="login-card">
         <i class="fas fa-church" style="font-size: 48px; color: #1e6f5c;"></i>
         <h2>Gospel Grace Education</h2>
-        <p>Complete Admin Hub | ALL TABS WORKING</p>
-        <div style="background:#e8f4f0; padding:10px; border-radius:12px; margin:16px 0; font-size:0.75rem;">
-            ✅ Dashboard | Students | Courses | Admissions | ISR | Forms | Sheets | Reports<br>
-            ✅ Student data → SheetDB Permanent Storage
+        <p><strong>Central Employee Hub</strong> | Google Apps Script Backend</p>
+        <div style="background:#e8f4f0; padding:12px; border-radius:20px; margin:16px 0; font-size:0.75rem;">
+            🚀 <strong>Unlimited FREE API Calls!</strong><br>
+            📊 Marketing · HR · Backend Developer · Admin Support<br>
+            ☁️ Data stored in your Google Sheet (4 Tabs)
         </div>
         <select id="roleSelect" class="select-role">
-            <option value="">-- Select Role --</option>
-            <option value="Adminsupport(GGE)">Adminsupport(GGE)</option>
-            <option value="Adminsupport2 (GGE)">Adminsupport2 (GGE)</option>
-            <option value="Founder & Director">Founder & Director</option>
-            <option value="Marketingadmin">Marketingadmin</option>
-            <option value="Viralmedia">Viralmedia</option>
-            <option value="Supporttecwithamey">Supporttecwithamey</option>
-            <option value="Team Lead (TWA)">Team Lead (TWA)</option>
-            <option value="Vice Director">Vice Director</option>
+            <option value="">-- Select Employee Role --</option>
+            <option value="Marketing Manager">📢 Marketing Manager</option>
+            <option value="HR Executive">👥 HR Executive</option>
+            <option value="Backend Developer">💻 Backend Developer</option>
+            <option value="Admin Support">📋 Admin Support</option>
+            <option value="Team Lead (TWA)">🏆 Team Lead (TWA)</option>
+            <option value="Support Technician">🛠️ Support Technician</option>
+            <option value="Vice Director">🎯 Vice Director</option>
+            <option value="Founder & Director">👑 Founder & Director</option>
         </select>
         <div class="password-field"><input type="password" id="loginPassword" placeholder="Password"></div>
-        <button class="login-btn" id="doLoginBtn">Access Hub</button>
+        <button class="login-btn" id="doLoginBtn"><i class="fas fa-cloud"></i> Access Hub</button>
         <div id="loginError" class="error-msg"></div>
+        <p style="font-size:0.7rem; margin-top:16px;">🔐 Demo: Any role + <strong>"hub2025"</strong></p>
     </div>
 </div>
 
 <div class="admin-wrapper" id="adminApp">
     <aside class="sidebar">
-        <div class="logo-area"><h2><i class="fas fa-church"></i> GraceHub</h2></div>
+        <div class="logo-area"><h2><i class="fas fa-church"></i> UnityHub</h2></div>
         <div class="nav-menu">
             <div class="nav-item active" data-tab="dashboard"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></div>
-            <div class="nav-item" data-tab="students"><i class="fas fa-user-graduate"></i> <span>Students</span></div>
-            <div class="nav-item" data-tab="courses"><i class="fas fa-book-open"></i> <span>Courses</span></div>
-            <div class="nav-item" data-tab="applications"><i class="fas fa-file-alt"></i> <span>Admissions</span></div>
-            <div class="nav-item" data-tab="isr"><i class="fas fa-hand-holding-heart"></i> <span>ISR</span></div>
+            <div class="nav-item" data-tab="employees"><i class="fas fa-users"></i> <span>Employees</span></div>
+            <div class="nav-item" data-tab="tasks"><i class="fas fa-tasks"></i> <span>Tasks</span></div>
+            <div class="nav-item" data-tab="attendance"><i class="fas fa-clock"></i> <span>Attendance</span></div>
             <div class="nav-divider"></div>
-            <div class="nav-item" data-tab="forms"><i class="fas fa-wpforms"></i> <span>Forms</span></div>
-            <div class="nav-item" data-tab="sheets"><i class="fas fa-table"></i> <span>Sheets</span></div>
+            <div class="nav-item" data-tab="requests"><i class="fas fa-headset"></i> <span>SR/ISR Hub</span></div>
+            <div class="nav-item" data-tab="forms"><i class="fas fa-wpforms"></i> <span>Quick Forms</span></div>
+            <div class="nav-item" data-tab="sheets"><i class="fas fa-table"></i> <span>Sheets Central</span></div>
             <div class="nav-item" data-tab="reports"><i class="fas fa-chart-line"></i> <span>Reports</span></div>
         </div>
-        <div style="padding: 20px;"><i class="fas fa-user-shield"></i> <span id="currentRoleName"></span><br><span style="font-size:0.6rem;">SheetDB Cloud</span></div>
+        <div style="padding: 20px;">
+            <i class="fas fa-user-circle"></i> <span id="currentRoleName"></span><br>
+            <div class="storage-info" id="storageStatus">
+                <i class="fas fa-spinner fa-pulse"></i> Connecting to Google Sheets...
+            </div>
+        </div>
     </aside>
     <div class="main-content">
-        <div class="top-bar"><h2>Complete Admin Hub <span style="font-size:0.8rem;">| All Features Working</span></h2><button class="btn-sm" id="logoutBtn">Logout</button></div>
-        <div class="dashboard-container" id="dynamicContent"><div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-pulse"></i> Loading...</div></div>
-        <div class="footer-note"><i class="fas fa-praying-hands"></i> Gospel Grace Education · All student data saved permanently</div>
+        <div class="top-bar"><h2>🏢 Central Employee Platform <span style="font-size:0.8rem;">| Unlimited API (Apps Script)</span></h2><button class="btn-sm" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button></div>
+        <div class="dashboard-container" id="dynamicContent"><div style="text-align:center; padding:40px;"><i class="fas fa-spinner fa-pulse"></i> Loading from Google Sheets...</div></div>
+        <div class="footer-note"><i class="fas fa-cloud-upload-alt"></i> Data stored in Google Sheets | Powered by Google Apps Script (Unlimited FREE API)</div>
     </div>
-    <div class="sync-status" id="syncStatus"><i class="fas fa-cloud"></i> Ready</div>
+    <div class="sync-status" id="syncStatus"><i class="fas fa-cloud-upload-alt"></i> Ready</div>
 </div>
 
 <div id="genericModal" class="modal">
     <div class="modal-content">
-        <h3 id="modalTitle">Add Item</h3>
+        <h3 id="modalTitle">Manage Entry</h3>
         <div id="modalFields"></div>
         <div style="display: flex; gap: 12px; margin-top: 20px;">
             <button id="modalSaveBtn" class="btn-sm btn-primary">Save</button>
@@ -180,444 +156,589 @@
 </div>
 
 <script>
-// ========== YOUR SHEETDB API ENDPOINT ==========
-const SHEETDB_URL = "https://sheetdb.io/api/v1/c2yz1g1ac1e0j";
-
-// ========== LOGIN CREDENTIALS ==========
-const VALID_CREDENTIALS = {
-    "Adminsupport(GGE)": "Grace@2025#Hub",
-    "Adminsupport2 (GGE)": "Gospel$Admin22",
-    "Founder & Director": "F0under!Grace",
-    "Marketingadmin": "M@rketGGE77",
-    "Viralmedia": "Viral!Media2025",
-    "Supporttecwithamey": "Support@tecGGE",
-    "Team Lead (TWA)": "LeadTWA$Grace",
-    "Vice Director": "VDirector!GGE2025"
-};
-
-// ========== GOOGLE FORMS URLs ==========
-const FORMS = {
-    raiseSR: "https://forms.gle/MGu1Zc4X21zGDEy99",
-    raiseISR: "https://forms.gle/QUFQA38W5gFiceH99",
-    markAttendance: "https://forms.gle/oiRKHVGW6rkAw7789"
-};
-
-// ========== GOOGLE SHEETS URLs ==========
-const SHEETS = {
-    taskRecord: "https://docs.google.com/spreadsheets/d/11p-XCtQzS-QwQF4YpnWeDq9TLxUK_XEFD3DE41m6JYk/edit?usp=sharing",
-    attendanceRecord: "https://docs.google.com/spreadsheets/d/1Nq6-qnHwwf4a5-dYylNPYFUpUis2gssMUn3omr4q2lE/edit?usp=sharing",
-    srIsrRecord: "https://docs.google.com/spreadsheets/d/1HXmLwQ0h_2qy6cBE--dHG8xfnZTgYICc68yeWIamlBw/edit?usp=sharing"
-};
-
-// ========== GLOBAL DATA ==========
-let students = [];
-let courses = [
-    { code: "THEO501", title: "Systematic Theology I", instructor: "Dr. A. Brooks", enrolled: 34 },
-    { code: "BIBL304", title: "Hermeneutics", instructor: "Prof. L. Chen", enrolled: 28 },
-    { code: "PAST202", title: "Pastoral Counseling", instructor: "Dr. M. Wanjiku", enrolled: 22 }
-];
-let applications = [
-    { id: "APP001", applicant: "Mary Williams", program: "Bachelor of Theology", date: new Date().toISOString().slice(0,10), status: "Under Review" },
-    { id: "APP002", applicant: "John Kamau", program: "Diploma in Ministry", date: new Date().toISOString().slice(0,10), status: "Accepted" }
-];
-let isrList = [
-    { id: "ISR101", student: "Michael Thompson", type: "Financial Aid", amount: "$450", status: "Pending", date: new Date().toISOString().slice(0,10) },
-    { id: "ISR102", student: "Sarah Jenkins", type: "Tech Support", amount: "-", status: "Completed", date: new Date().toISOString().slice(0,10) }
-];
-let currentTab = "dashboard";
-let currentEditItem = null;
-let currentModalType = null;
-
-// ========== UI HELPERS ==========
-function updateSyncStatus(msg, type) {
-    let el = document.getElementById('syncStatus');
-    if (el) {
-        el.innerHTML = `<i class="fas fa-cloud"></i> ${msg}`;
-        el.style.background = type === 'error' ? '#c2410c' : '#1e6f5c';
-        setTimeout(() => { if (el.innerHTML.includes(msg)) el.innerHTML = `<i class="fas fa-cloud"></i> Ready`; }, 2500);
-    }
-}
-
-function escapeHtml(str) { 
-    if(!str) return ''; 
-    return String(str).replace(/[&<>]/g, function(m){ 
-        if(m==='&') return '&amp;'; 
-        if(m==='<') return '&lt;'; 
-        if(m==='>') return '&gt;'; 
-        return m;
-    }); 
-}
-
-// ========== SHEETDB OPERATIONS (Students only - permanent storage) ==========
-async function loadStudentsFromSheetDB() {
-    updateSyncStatus("Loading from SheetDB...", "info");
-    try {
-        let response = await fetch(SHEETDB_URL);
-        let data = await response.json();
-        
-        if (Array.isArray(data) && data.length > 0) {
-            students = data.map(row => ({
-                id: row.ID || row.id || ("S" + Math.random().toString(36).substr(2, 4)),
-                name: row.Name || row.name || "Unknown",
-                email: row.Email || row.email || "",
-                enrollment: row.Enrollment || row.enrollment || "",
-                status: row.Status || row.status || "Active"
-            }));
-        } else {
-            students = getDefaultStudents();
-            await saveStudentsToSheetDB();
-        }
-        
-        updateSyncStatus(`✓ Loaded ${students.length} students`, "success");
-        renderAll();
-    } catch (error) {
-        console.error("SheetDB error:", error);
-        students = getDefaultStudents();
-        updateSyncStatus("⚠️ Using local data", "error");
-        renderAll();
-    }
-}
-
-async function saveStudentsToSheetDB() {
-    try {
-        let dataToSave = students.map(s => ({
-            ID: s.id,
-            Name: s.name,
-            Email: s.email,
-            Enrollment: s.enrollment,
-            Status: s.status
-        }));
-        
-        let response = await fetch(SHEETDB_URL, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dataToSave)
-        });
-        
-        if (response.ok) {
-            updateSyncStatus("✓ Saved to SheetDB", "success");
-            return true;
-        } else {
-            throw new Error("Save failed");
-        }
-    } catch (error) {
-        console.error("Save error:", error);
-        updateSyncStatus("⚠️ Save failed", "error");
-        return false;
-    }
-}
-
-function getDefaultStudents() {
-    return [
-        { id: "S1001", name: "Michael Thompson", email: "michael@grace.edu", enrollment: "Theology", status: "Active" },
-        { id: "S1002", name: "Sarah Jenkins", email: "sarah@grace.edu", enrollment: "Counseling", status: "Active" },
-        { id: "S1003", name: "David Omondi", email: "david@grace.edu", enrollment: "Biblical Studies", status: "Active" }
-    ];
-}
-
-// ========== CRUD OPERATIONS ==========
-async function addStudent(student) {
-    let newId = "S" + (1000 + students.length + 1);
-    students.push({ ...student, id: newId, status: student.status || "Active" });
-    await saveStudentsToSheetDB();
-    renderAll();
-    updateSyncStatus("Student added", "success");
-}
-
-async function updateStudent(id, updatedData) {
-    let index = students.findIndex(s => s.id == id);
-    if (index !== -1) {
-        students[index] = { ...students[index], ...updatedData };
-        await saveStudentsToSheetDB();
-        renderAll();
-        updateSyncStatus("Student updated", "success");
-    }
-}
-
-async function deleteStudent(id) {
-    if (!confirm("Delete this student permanently?")) return;
-    students = students.filter(s => s.id != id);
-    await saveStudentsToSheetDB();
-    renderAll();
-    updateSyncStatus("Student deleted", "success");
-}
-
-// Courses CRUD
-function addCourse(course) { 
-    courses.push(course); 
-    renderAll(); 
-    updateSyncStatus("Course added", "success");
-}
-function updateCourse(code, data) { 
-    let i = courses.findIndex(c => c.code == code); 
-    if(i!==-1) { 
-        courses[i] = {...courses[i], ...data}; 
-        renderAll(); 
-        updateSyncStatus("Course updated", "success");
-    } 
-}
-function deleteCourse(code) { 
-    if(confirm("Delete this course?")) { 
-        courses = courses.filter(c => c.code != code); 
-        renderAll(); 
-        updateSyncStatus("Course deleted", "success");
-    } 
-}
-
-// Applications CRUD
-function addApplication(app) { 
-    let newId = "APP" + (100 + applications.length + 1); 
-    applications.push({ ...app, id: newId, date: new Date().toISOString().slice(0,10) }); 
-    renderAll(); 
-    updateSyncStatus("Application added", "success");
-}
-function updateApplication(id, data) { 
-    let i = applications.findIndex(a => a.id == id); 
-    if(i!==-1) { 
-        applications[i] = {...applications[i], ...data}; 
-        renderAll(); 
-        updateSyncStatus("Application updated", "success");
-    } 
-}
-function deleteApplication(id) { 
-    if(confirm("Delete this application?")) { 
-        applications = applications.filter(a => a.id != id); 
-        renderAll(); 
-        updateSyncStatus("Application deleted", "success");
-    } 
-}
-
-// ISR CRUD
-function addISR(isr) { 
-    let newId = "ISR" + (200 + isrList.length + 1); 
-    isrList.push({ ...isr, id: newId, date: new Date().toISOString().slice(0,10) }); 
-    renderAll(); 
-    updateSyncStatus("ISR request added", "success");
-}
-function updateISR(id, data) { 
-    let i = isrList.findIndex(i => i.id == id); 
-    if(i!==-1) { 
-        isrList[i] = {...isrList[i], ...data}; 
-        renderAll(); 
-        updateSyncStatus("ISR updated", "success");
-    } 
-}
-function deleteISR(id) { 
-    if(confirm("Delete this request?")) { 
-        isrList = isrList.filter(i => i.id != id); 
-        renderAll(); 
-        updateSyncStatus("ISR deleted", "success");
-    } 
-}
-
-// Export to CSV
-function exportToCSV(type, data) {
-    if (!data.length) { alert("No data to export"); return; }
-    let headers = Object.keys(data[0]);
-    let csv = headers.join(",") + "\n";
-    data.forEach(row => { 
-        csv += headers.map(h => `"${(row[h] || '').toString().replace(/"/g, '""')}"`).join(",") + "\n"; 
-    });
-    let blob = new Blob([csv], { type: 'text/csv' });
-    let a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `${type}_${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
-    updateSyncStatus(`✓ ${type} exported`, "success");
-}
-
-// ========== MODAL ==========
-function showModal(type, editItem = null) {
-    currentModalType = type;
-    currentEditItem = editItem;
-    let modal = document.getElementById('genericModal');
-    let title = document.getElementById('modalTitle');
-    let fieldsDiv = document.getElementById('modalFields');
+    // ======================== YOUR GOOGLE APPS SCRIPT WEB APP URL ========================
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwGuZQun8Op4IlyS8jSN1qH0JJUyrixb0dIpyHFx8LoPfL2L-HyQaSMtth_tAu0T7jd/exec";
     
-    title.innerText = editItem ? `✏️ Edit ${type.slice(0,-1)}` : `➕ Add ${type.slice(0,-1)}`;
+    // Data stores
+    let employees = [];
+    let tasks = [];
+    let attendanceRecords = [];
+    let serviceRequests = [];
     
-    let html = '';
-    if (type === 'students') {
-        html = `<label>Full Name *</label><input id="field_name" value="${escapeHtml(editItem?.name || '')}"><label>Email</label><input id="field_email" value="${escapeHtml(editItem?.email || '')}"><label>Program</label><input id="field_enrollment" value="${escapeHtml(editItem?.enrollment || '')}"><label>Status</label><select id="field_status"><option ${editItem?.status === 'Active' ? 'selected' : ''}>Active</option><option ${editItem?.status === 'Inactive' ? 'selected' : ''}>Inactive</option><option ${editItem?.status === 'Graduated' ? 'selected' : ''}>Graduated</option></select>`;
-    } else if (type === 'courses') {
-        html = `<label>Course Code *</label><input id="field_code" value="${escapeHtml(editItem?.code || '')}"><label>Title</label><input id="field_title" value="${escapeHtml(editItem?.title || '')}"><label>Instructor</label><input id="field_instructor" value="${escapeHtml(editItem?.instructor || '')}"><label>Enrolled</label><input id="field_enrolled" type="number" value="${editItem?.enrolled || 0}">`;
-    } else if (type === 'applications') {
-        html = `<label>Applicant Name *</label><input id="field_applicant" value="${escapeHtml(editItem?.applicant || '')}"><label>Program</label><input id="field_program" value="${escapeHtml(editItem?.program || '')}"><label>Status</label><select id="field_status"><option ${editItem?.status === 'Under Review' ? 'selected' : ''}>Under Review</option><option ${editItem?.status === 'Accepted' ? 'selected' : ''}>Accepted</option><option ${editItem?.status === 'Rejected' ? 'selected' : ''}>Rejected</option></select>`;
-    } else if (type === 'isr') {
-        html = `<label>Student Name *</label><input id="field_student" value="${escapeHtml(editItem?.student || '')}"><label>Request Type</label><input id="field_type" value="${escapeHtml(editItem?.type || '')}"><label>Amount</label><input id="field_amount" value="${escapeHtml(editItem?.amount || '')}"><label>Status</label><select id="field_status"><option ${editItem?.status === 'Pending' ? 'selected' : ''}>Pending</option><option ${editItem?.status === 'Approved' ? 'selected' : ''}>Approved</option><option ${editItem?.status === 'Completed' ? 'selected' : ''}>Completed</option><option ${editItem?.status === 'Rejected' ? 'selected' : ''}>Rejected</option></select>`;
+    let currentTab = "dashboard";
+    let currentModalType = null;
+    let currentEditItem = null;
+    
+    // Helper Functions
+    function updateSyncStatus(msg, type="success") {
+        let el = document.getElementById('syncStatus');
+        if (el) {
+            el.innerHTML = `<i class="fas fa-sync-alt"></i> ${msg}`;
+            el.style.background = type === 'error' ? '#c2410c' : '#1e6f5c';
+            setTimeout(() => { 
+                if (el.innerHTML.includes(msg)) el.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> Ready`; 
+            }, 2500);
+        }
     }
-    fieldsDiv.innerHTML = html;
-    modal.style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('genericModal').style.display = 'none';
-    currentEditItem = null;
-    currentModalType = null;
-}
-
-function saveModal() {
-    let type = currentModalType;
-    if (type === 'students') {
-        let name = document.getElementById('field_name')?.value;
-        if (!name) { alert("Name is required"); return; }
-        let newData = { name, email: document.getElementById('field_email')?.value || '', enrollment: document.getElementById('field_enrollment')?.value || '', status: document.getElementById('field_status')?.value || 'Active' };
-        if (currentEditItem) updateStudent(currentEditItem.id, newData);
-        else addStudent(newData);
-    } else if (type === 'courses') {
-        let code = document.getElementById('field_code')?.value;
-        if (!code) { alert("Course code required"); return; }
-        let newData = { code, title: document.getElementById('field_title')?.value || '', instructor: document.getElementById('field_instructor')?.value || '', enrolled: parseInt(document.getElementById('field_enrolled')?.value) || 0 };
-        if (currentEditItem) updateCourse(currentEditItem.code, newData);
-        else addCourse(newData);
-    } else if (type === 'applications') {
-        let applicant = document.getElementById('field_applicant')?.value;
-        if (!applicant) { alert("Applicant name required"); return; }
-        let newData = { applicant, program: document.getElementById('field_program')?.value || '', status: document.getElementById('field_status')?.value || 'Under Review' };
-        if (currentEditItem) updateApplication(currentEditItem.id, newData);
-        else addApplication(newData);
-    } else if (type === 'isr') {
-        let student = document.getElementById('field_student')?.value;
-        if (!student) { alert("Student name required"); return; }
-        let newData = { student, type: document.getElementById('field_type')?.value || '', amount: document.getElementById('field_amount')?.value || '', status: document.getElementById('field_status')?.value || 'Pending' };
-        if (currentEditItem) updateISR(currentEditItem.id, newData);
-        else addISR(newData);
+    
+    function escapeHtml(str) { 
+        if(!str) return ''; 
+        return String(str).replace(/[&<>]/g, function(m){ 
+            if(m==='&') return '&amp;'; 
+            if(m==='<') return '&lt;'; 
+            if(m==='>') return '&gt;'; 
+            return m;
+        }); 
     }
-    closeModal();
-}
-
-// ========== RENDER FUNCTIONS - ALL 8 TABS ==========
-function renderDashboard() {
-    let activeStudents = students.filter(s=>s.status==='Active').length;
-    let pendingApps = applications.filter(a=>a.status==='Under Review').length;
-    let pendingISR = isrList.filter(i=>i.status==='Pending').length;
-    let html = `<div class="stats-grid">
-        <div class="stat-card"><div class="stat-title">Total Students</div><div class="stat-number">${students.length}</div></div>
-        <div class="stat-card"><div class="stat-title">Active Students</div><div class="stat-number">${activeStudents}</div></div>
-        <div class="stat-card"><div class="stat-title">Courses</div><div class="stat-number">${courses.length}</div></div>
-        <div class="stat-card"><div class="stat-title">Pending Admissions</div><div class="stat-number">${pendingApps}</div></div>
-        <div class="stat-card"><div class="stat-title">Open ISR</div><div class="stat-number">${pendingISR}</div></div>
-    </div>
-    <div class="section-title"><span>📋 Recent Students</span><button class="btn-sm" onclick="exportToCSV('students', students)"><i class="fas fa-file-excel"></i> Export CSV</button></div>
-    <div class="panel-card"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Program</th><th>Status</th></tr></thead><tbody>${students.slice(0,5).map(s => `<tr><td>${s.id}</td><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.email)}</td><td>${escapeHtml(s.enrollment)}</td><td><span class="badge">${s.status}</span></td></tr>`).join('')}</tbody>}</table></div>
-    <div class="section-title"><span>📊 Quick Overview</span></div>
-    <div class="panel-card" style="padding:20px"><canvas id="dashboardChart" style="max-height:300px"></canvas></div>`;
-    document.getElementById('dynamicContent').innerHTML = html;
-    setTimeout(() => {
-        let ctx = document.getElementById('dashboardChart')?.getContext('2d');
-        if(ctx) new Chart(ctx, { type: 'doughnut', data: { labels: ['Students', 'Courses', 'Applications', 'ISR'], datasets: [{ data: [students.length, courses.length, applications.length, isrList.length], backgroundColor: ['#2c7da0', '#52b788', '#f4a261', '#e76f51'] }] } });
-    }, 100);
-}
-
-function renderStudents() {
-    let html = `<div class="section-title"><span>👨‍🎓 Student Management (${students.length} students)</span><div><button class="btn-sm" onclick="showModal('students')"><i class="fas fa-plus"></i> Add Student</button><button class="btn-sm" onclick="exportToCSV('students', students)"><i class="fas fa-file-excel"></i> Export CSV</button></div></div>
-    <div class="panel-card"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Program</th><th>Status</th><th>Actions</th></tr></thead><tbody>${students.map(s => `<tr><td>${s.id}</td><td>${escapeHtml(s.name)}</td><td>${escapeHtml(s.email)}</td><td>${escapeHtml(s.enrollment)}</td><td><span class="badge">${s.status}</span></td><td><i class="fas fa-edit action-icon" onclick='showModal("students", ${JSON.stringify(s).replace(/'/g, "&#39;")})'></i> <i class="fas fa-trash action-icon" onclick="deleteStudent('${s.id}')"></i></td></tr>`).join('')}</tbody></table></div>`;
-    document.getElementById('dynamicContent').innerHTML = html;
-}
-
-function renderCourses() {
-    let html = `<div class="section-title"><span>📚 Courses (${courses.length} courses)</span><div><button class="btn-sm" onclick="showModal('courses')"><i class="fas fa-plus"></i> Add Course</button><button class="btn-sm" onclick="exportToCSV('courses', courses)"><i class="fas fa-file-excel"></i> Export CSV</button></div></div>
-    <div class="panel-card"><table><thead><tr><th>Code</th><th>Title</th><th>Instructor</th><th>Enrolled</th><th>Actions</th></tr></thead><tbody>${courses.map(c => `<tr><td>${escapeHtml(c.code)}</td><td>${escapeHtml(c.title)}</td><td>${escapeHtml(c.instructor)}</td><td>${c.enrolled}</td><td><i class="fas fa-edit action-icon" onclick='showModal("courses", ${JSON.stringify(c).replace(/'/g, "&#39;")})'></i> <i class="fas fa-trash action-icon" onclick="deleteCourse('${c.code}')"></i></td></tr>`).join('')}</tbody></table></div>`;
-    document.getElementById('dynamicContent').innerHTML = html;
-}
-
-function renderApplications() {
-    let html = `<div class="section-title"><span>📋 Admissions (${applications.length} applications)</span><div><button class="btn-sm" onclick="showModal('applications')"><i class="fas fa-plus"></i> Add Application</button><button class="btn-sm" onclick="exportToCSV('applications', applications)"><i class="fas fa-file-excel"></i> Export CSV</button></div></div>
-    <div class="panel-card"><table><thead><tr><th>ID</th><th>Applicant</th><th>Program</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>${applications.map(a => `<tr><td>${a.id}</td><td>${escapeHtml(a.applicant)}</td><td>${escapeHtml(a.program)}</td><td>${a.date}</td><td>${a.status}</td><td><i class="fas fa-edit action-icon" onclick='showModal("applications", ${JSON.stringify(a).replace(/'/g, "&#39;")})'></i> <i class="fas fa-trash action-icon" onclick="deleteApplication('${a.id}')"></i></span></td></tr>`).join('')}</tbody></table></div>`;
-    document.getElementById('dynamicContent').innerHTML = html;
-}
-
-function renderISR() {
-    let html = `<div class="section-title"><span>💝 ISR & Support (${isrList.length} requests)</span><div><button class="btn-sm" onclick="showModal('isr')"><i class="fas fa-plus"></i> Add Request</button><button class="btn-sm" onclick="exportToCSV('isr', isrList)"><i class="fas fa-file-excel"></i> Export CSV</button></div></div>
-    <div class="panel-card"><table><thead><tr><th>ID</th><th>Student</th><th>Type</th><th>Amount</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${isrList.map(i => `<tr><td>${i.id}</td><td>${escapeHtml(i.student)}</td><td>${escapeHtml(i.type)}</td><td>${escapeHtml(i.amount)}</td><td>${i.status}</td><td>${i.date}</td><td><i class="fas fa-edit action-icon" onclick='showModal("isr", ${JSON.stringify(i).replace(/'/g, "&#39;")})'></i> <i class="fas fa-trash action-icon" onclick="deleteISR('${i.id}')"></i></span></td></tr>`).join('')}</tbody>}</table></div>`;
-    document.getElementById('dynamicContent').innerHTML = html;
-}
-
-function renderForms() {
-    document.getElementById('dynamicContent').innerHTML = `<div class="section-title"><span>📋 Google Forms Access</span></div>
-    <div class="form-card-grid">
-        <div class="form-card" onclick="window.open('${FORMS.raiseSR}','_blank')"><div class="form-icon"><i class="fas fa-exclamation-triangle" style="color:#e67e22;"></i></div><h3>Raise SR</h3><p>Service Request - Technical / Operational issues</p><span class="btn-sm">Open Form →</span></div>
-        <div class="form-card" onclick="window.open('${FORMS.raiseISR}','_blank')"><div class="form-icon"><i class="fas fa-hand-holding-heart" style="color:#1e6f5c;"></i></div><h3>Raise ISR</h3><p>Internal Service Request - HR / Admin / Academic</p><span class="btn-sm">Open Form →</span></div>
-        <div class="form-card" onclick="window.open('${FORMS.markAttendance}','_blank')"><div class="form-icon"><i class="fas fa-clock" style="color:#2c7da0;"></i></div><h3>Mark Attendance</h3><p>Daily attendance - IN before 10am | OUT after 5pm</p><span class="btn-sm">Open Form →</span></div>
-    </div>
-    <div class="section-title"><span>📌 Instructions</span></div>
-    <div class="panel-card" style="padding:20px"><ul style="margin-left:20px; line-height:1.8"><li><strong>Raise SR:</strong> For technical issues, IT support, facility requests</li><li><strong>Raise ISR:</strong> For HR matters, admin support, academic assistance</li><li><strong>Mark Attendance:</strong> Mark IN before 10 AM, OUT after 5 PM daily</li></ul></div>`;
-}
-
-function renderSheets() {
-    document.getElementById('dynamicContent').innerHTML = `<div class="section-title"><span>📊 Google Sheets Records</span></div>
-    <div class="sheet-card" onclick="window.open('${SHEETS.taskRecord}','_blank')"><div><i class="fas fa-tasks" style="font-size:24px; margin-right:12px;"></i> <strong>📋 TASK RECORD</strong><br>All task assignments and progress</div><button class="btn-sm">Open Sheet →</button></div>
-    <div class="sheet-card" onclick="window.open('${SHEETS.attendanceRecord}','_blank')"><div><i class="fas fa-calendar-check" style="font-size:24px; margin-right:12px;"></i> <strong>⏰ ATTENDANCE RECORD</strong><br>Daily attendance logs - IN/OUT timestamps</div><button class="btn-sm">Open Sheet →</button></div>
-    <div class="sheet-card" onclick="window.open('${SHEETS.srIsrRecord}','_blank')"><div><i class="fas fa-clipboard-list" style="font-size:24px; margin-right:12px;"></i> <strong>📊 SR & ISR RECORD</strong><br>Complete log of all Service Requests</div><button class="btn-sm">Open Sheet →</button></div>
-    <div class="section-title"><span>ℹ️ About These Sheets</span></div>
-    <div class="panel-card" style="padding:20px"><p>The Task Record, Attendance Record, and SR/ISR Record are Google Sheets that store all form submissions and task data. Click any card above to open the sheet in a new tab.</p></div>`;
-}
-
-function renderReports() {
-    let activeCount = students.filter(s=>s.status==='Active').length;
-    document.getElementById('dynamicContent').innerHTML = `<div class="section-title"><span>📈 Analytics & Reports</span></div>
-    <div class="stats-grid">
-        <div class="stat-card"><div class="stat-number">${students.length}</div><div>Total Students</div></div>
-        <div class="stat-card"><div class="stat-number">${activeCount}</div><div>Active Students</div></div>
-        <div class="stat-card"><div class="stat-number">${courses.length}</div><div>Total Courses</div></div>
-        <div class="stat-card"><div class="stat-number">${isrList.length}</div><div>ISR Requests</div></div>
-        <div class="stat-card"><div class="stat-number">${applications.length}</div><div>Applications</div></div>
-    </div>
-    <div class="section-title"><span>📊 Visual Analytics</span></div>
-    <div class="panel-card" style="padding:20px"><canvas id="reportChart" style="max-height:300px"></canvas></div>
-    <div class="section-title"><span>📎 Export Reports</span></div>
-    <div class="panel-card" style="padding:20px; display:flex; gap:10px; flex-wrap:wrap;">
-        <button class="btn-sm" onclick="exportToCSV('students', students)"><i class="fas fa-user-graduate"></i> Students CSV</button>
-        <button class="btn-sm" onclick="exportToCSV('courses', courses)"><i class="fas fa-book-open"></i> Courses CSV</button>
-        <button class="btn-sm" onclick="exportToCSV('applications', applications)"><i class="fas fa-file-alt"></i> Admissions CSV</button>
-        <button class="btn-sm" onclick="exportToCSV('isr', isrList)"><i class="fas fa-hand-holding-heart"></i> ISR CSV</button>
-    </div>`;
-    setTimeout(() => {
-        let ctx = document.getElementById('reportChart')?.getContext('2d');
-        if(ctx) new Chart(ctx, { type: 'bar', data: { labels: ['Students', 'Active Students', 'Courses', 'ISR', 'Applications'], datasets: [{ data: [students.length, activeCount, courses.length, isrList.length, applications.length], backgroundColor: ['#2c7da0', '#52b788', '#f4a261', '#e76f51', '#9b59b6'] }] } });
-    }, 100);
-}
-
-function renderAll() {
-    if (currentTab === 'dashboard') renderDashboard();
-    else if (currentTab === 'students') renderStudents();
-    else if (currentTab === 'courses') renderCourses();
-    else if (currentTab === 'applications') renderApplications();
-    else if (currentTab === 'isr') renderISR();
-    else if (currentTab === 'forms') renderForms();
-    else if (currentTab === 'sheets') renderSheets();
-    else if (currentTab === 'reports') renderReports();
-}
-
-// ========== INITIALIZATION ==========
-document.getElementById('doLoginBtn')?.addEventListener('click', () => {
-    let role = document.getElementById('roleSelect').value;
-    let pwd = document.getElementById('loginPassword').value;
-    if (!role || !VALID_CREDENTIALS[role]) { document.getElementById('loginError').innerText = "Invalid role"; return; }
-    if (VALID_CREDENTIALS[role] === pwd) {
-        document.getElementById('loginOverlay').style.display = 'none';
-        document.getElementById('adminApp').style.display = 'flex';
-        document.getElementById('currentRoleName').innerText = role;
-        loadStudentsFromSheetDB();
-        document.querySelectorAll('.nav-item').forEach(nav => nav.addEventListener('click', () => { 
-            currentTab = nav.getAttribute('data-tab'); 
-            document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); 
-            nav.classList.add('active'); 
+    
+    // ======================== API CALLS TO GOOGLE APPS SCRIPT ========================
+    
+    // Generic GET request
+    async function fetchTable(tableName) {
+        try {
+            const response = await fetch(`${APPS_SCRIPT_URL}?table=${tableName}`);
+            const data = await response.json();
+            return Array.isArray(data) ? data : [];
+        } catch(e) {
+            console.error(`Error fetching ${tableName}:`, e);
+            return [];
+        }
+    }
+    
+    // Generic POST request (add new record)
+    async function addRecord(tableName, record) {
+        try {
+            const response = await fetch(`${APPS_SCRIPT_URL}?table=${tableName}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(record)
+            });
+            const result = await response.json();
+            return result.success;
+        } catch(e) {
+            console.error(`Error adding to ${tableName}:`, e);
+            return false;
+        }
+    }
+    
+    // Generic PUT request (update record)
+    async function updateRecord(tableName, id, updates) {
+        try {
+            const response = await fetch(`${APPS_SCRIPT_URL}?table=${tableName}&id=${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(updates)
+            });
+            const result = await response.json();
+            return result.success;
+        } catch(e) {
+            console.error(`Error updating ${tableName}:`, e);
+            return false;
+        }
+    }
+    
+    // Generic DELETE request
+    async function deleteRecord(tableName, id) {
+        try {
+            const response = await fetch(`${APPS_SCRIPT_URL}?table=${tableName}&id=${id}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            return result.success;
+        } catch(e) {
+            console.error(`Error deleting from ${tableName}:`, e);
+            return false;
+        }
+    }
+    
+    // Load all data from Google Sheets
+    async function loadAllData() {
+        document.getElementById('storageStatus').innerHTML = '<i class="fas fa-spinner fa-pulse"></i> Loading from Google Sheets...';
+        
+        try {
+            // Load all 4 tables in parallel
+            const [empData, taskData, attData, reqData] = await Promise.all([
+                fetchTable('Employees'),
+                fetchTable('Tasks'),
+                fetchTable('Attendance'),
+                fetchTable('Requests')
+            ]);
+            
+            employees = empData.length > 0 ? empData : getDefaultEmployees();
+            tasks = taskData.length > 0 ? taskData : getDefaultTasks();
+            attendanceRecords = attData.length > 0 ? attData : getDefaultAttendance();
+            serviceRequests = reqData.length > 0 ? reqData : getDefaultRequests();
+            
+            document.getElementById('storageStatus').innerHTML = '✅ Connected to Google Sheets<br><small>Unlimited FREE API</small>';
+            updateSyncStatus("☁️ Loaded from Google Sheets", "success");
+            
+            // Also save to localStorage as backup
+            saveToLocalStorage();
+            
+        } catch(e) {
+            console.error("Load error:", e);
+            loadFromLocalStorage();
+            document.getElementById('storageStatus').innerHTML = '⚠️ Using Local Backup<br><small>Check API connection</small>';
+        }
+    }
+    
+    function saveToLocalStorage() {
+        localStorage.setItem('gge_employees', JSON.stringify(employees));
+        localStorage.setItem('gge_tasks', JSON.stringify(tasks));
+        localStorage.setItem('gge_attendance', JSON.stringify(attendanceRecords));
+        localStorage.setItem('gge_requests', JSON.stringify(serviceRequests));
+    }
+    
+    function loadFromLocalStorage() {
+        employees = JSON.parse(localStorage.getItem('gge_employees')) || getDefaultEmployees();
+        tasks = JSON.parse(localStorage.getItem('gge_tasks')) || getDefaultTasks();
+        attendanceRecords = JSON.parse(localStorage.getItem('gge_attendance')) || getDefaultAttendance();
+        serviceRequests = JSON.parse(localStorage.getItem('gge_requests')) || getDefaultRequests();
+        updateSyncStatus("📱 Using local backup", "info");
+    }
+    
+    // Default Data (used if sheets are empty)
+    function getDefaultEmployees() {
+        return [
+            { ID: "EMP001", Name: "Alisha Roy", Role: "Marketing Manager", Department: "Marketing", Email: "alisha@gge.org", Status: "Active", JoinDate: "2024-01-15" },
+            { ID: "EMP002", Name: "Rahul Sharma", Role: "HR Executive", Department: "Human Resources", Email: "rahul.hr@gge.org", Status: "Active", JoinDate: "2023-11-02" },
+            { ID: "EMP003", Name: "Neha Verma", Role: "Backend Developer", Department: "Technology", Email: "neha.dev@gge.org", Status: "Active", JoinDate: "2024-02-10" },
+            { ID: "EMP004", Name: "Kunal Mehta", Role: "Admin Support", Department: "Administration", Email: "kunal.admin@gge.org", Status: "Active", JoinDate: "2024-01-20" },
+            { ID: "EMP005", Name: "Priya Kapoor", Role: "Team Lead (TWA)", Department: "Operations", Email: "priya@gge.org", Status: "Active", JoinDate: "2024-03-01" }
+        ];
+    }
+    
+    function getDefaultTasks() {
+        return [
+            { ID: "TASK101", Title: "Q2 Marketing Campaign", AssignedTo: "Alisha Roy", Role: "Marketing Manager", Priority: "High", Status: "In Progress", DueDate: "2025-06-10" },
+            { ID: "TASK102", Title: "HR Policy Documentation", AssignedTo: "Rahul Sharma", Role: "HR Executive", Priority: "Medium", Status: "Pending", DueDate: "2025-05-25" },
+            { ID: "TASK103", Title: "API Integration for ERP", AssignedTo: "Neha Verma", Role: "Backend Developer", Priority: "Critical", Status: "In Progress", DueDate: "2025-06-01" }
+        ];
+    }
+    
+    function getDefaultAttendance() {
+        return [
+            { ID: "ATT001", EmployeeName: "Alisha Roy", Date: new Date().toISOString().slice(0,10), CheckIn: "09:15 AM", CheckOut: "05:30 PM", Status: "Present" },
+            { ID: "ATT002", EmployeeName: "Rahul Sharma", Date: new Date().toISOString().slice(0,10), CheckIn: "09:45 AM", CheckOut: "06:00 PM", Status: "Present" }
+        ];
+    }
+    
+    function getDefaultRequests() {
+        return [
+            { ID: "SR001", Type: "SR", Requester: "Marketing Team", Description: "Social media tool access", AssignedTo: "Admin Support", Status: "Open", CreatedAt: new Date().toISOString().slice(0,10) },
+            { ID: "ISR001", Type: "ISR", Requester: "HR Department", Description: "New hire onboarding documents", AssignedTo: "HR Executive", Status: "In Progress", CreatedAt: new Date().toISOString().slice(0,10) }
+        ];
+    }
+    
+    // CRUD Operations with Apps Script API
+    async function addEmployee(emp) { 
+        const newId = "EMP" + String(employees.length+101).padStart(3,'0');
+        const newEmp = { 
+            ID: newId,
+            Name: emp.name,
+            Role: emp.role,
+            Department: emp.department,
+            Email: emp.email,
+            Status: emp.status || "Active",
+            JoinDate: new Date().toISOString().slice(0,10)
+        };
+        const success = await addRecord('Employees', newEmp);
+        if(success) {
+            employees.push(newEmp);
+            await syncTable('Employees');
+        }
+        renderAll(); 
+        updateSyncStatus(success ? "✅ Employee added to Google Sheet" : "⚠️ Saved locally only");
+    }
+    
+    async function updateEmployee(id, data) { 
+        const idx = employees.findIndex(e=>e.ID === id); 
+        if(idx !== -1) {
+            const updates = {};
+            if(data.name) updates.Name = data.name;
+            if(data.role) updates.Role = data.role;
+            if(data.department) updates.Department = data.department;
+            if(data.email) updates.Email = data.email;
+            if(data.status) updates.Status = data.status;
+            
+            const success = await updateRecord('Employees', id, updates);
+            if(success) {
+                employees[idx] = {...employees[idx], ...updates};
+                await syncTable('Employees');
+            } else {
+                employees[idx] = {...employees[idx], ...updates};
+                saveToLocalStorage();
+            }
             renderAll(); 
-        }));
-        document.getElementById('logoutBtn')?.addEventListener('click', () => location.reload());
-        document.getElementById('modalSaveBtn')?.addEventListener('click', saveModal);
-        document.getElementById('modalCloseBtn')?.addEventListener('click', closeModal);
-    } else { document.getElementById('loginError').innerText = "Wrong password"; }
-});
-
-// Make global functions accessible
-window.showModal = showModal;
-window.deleteStudent = deleteStudent;
-window.deleteCourse = deleteCourse;
-window.deleteApplication = deleteApplication;
-window.deleteISR = deleteISR;
-window.exportToCSV = exportToCSV;
+            updateSyncStatus(success ? "✅ Employee updated in Google Sheet" : "⚠️ Saved locally");
+        }
+    }
+    
+    async function deleteEmployee(id) { 
+        if(!confirm("Remove employee permanently?")) return; 
+        const success = await deleteRecord('Employees', id);
+        if(success) {
+            employees = employees.filter(e=>e.ID !== id);
+            await syncTable('Employees');
+        } else {
+            employees = employees.filter(e=>e.ID !== id);
+            saveToLocalStorage();
+        }
+        renderAll(); 
+        updateSyncStatus(success ? "🗑️ Employee deleted from Google Sheet" : "⚠️ Removed locally");
+    }
+    
+    // Sync a table from Google Sheets to local memory
+    async function syncTable(tableName) {
+        const data = await fetchTable(tableName);
+        if(data.length > 0) {
+            if(tableName === 'Employees') employees = data;
+            else if(tableName === 'Tasks') tasks = data;
+            else if(tableName === 'Attendance') attendanceRecords = data;
+            else if(tableName === 'Requests') serviceRequests = data;
+            saveToLocalStorage();
+        }
+    }
+    
+    // Simplified task CRUD
+    async function addTask(task) { 
+        const newId = "TASK" + (300 + tasks.length + 1);
+        const newTask = { ID: newId, Title: task.title, AssignedTo: task.assignedTo, Role: task.role || 'General', Priority: task.priority, Status: task.status, DueDate: task.dueDate };
+        const success = await addRecord('Tasks', newTask);
+        if(success) tasks.push(newTask);
+        renderAll(); 
+    }
+    
+    async function updateTask(id, data) { 
+        const success = await updateRecord('Tasks', id, data);
+        if(success) await syncTable('Tasks');
+        renderAll(); 
+    }
+    
+    async function deleteTask(id) { 
+        if(confirm("Delete this task?")) { 
+            const success = await deleteRecord('Tasks', id);
+            if(success) tasks = tasks.filter(t=>t.ID !== id);
+            renderAll(); 
+        } 
+    }
+    
+    async function addAttendance(att) { 
+        const newId = "ATT" + (500 + attendanceRecords.length+1);
+        const newAtt = { ID: newId, EmployeeName: att.employeeName, Date: new Date().toISOString().slice(0,10), CheckIn: att.checkIn, CheckOut: att.checkOut, Status: att.status };
+        const success = await addRecord('Attendance', newAtt);
+        if(success) attendanceRecords.push(newAtt);
+        renderAll(); 
+    }
+    
+    async function deleteAttendance(id) { 
+        const success = await deleteRecord('Attendance', id);
+        if(success) attendanceRecords = attendanceRecords.filter(a=>a.ID !== id);
+        renderAll(); 
+    }
+    
+    async function addRequest(req) { 
+        const newId = (req.type === "SR"? "SR" : "ISR") + String(400 + serviceRequests.length+1);
+        const newReq = { ID: newId, Type: req.type, Requester: req.requester, Description: req.description, AssignedTo: req.assignedTo || "Admin", Status: req.status, CreatedAt: new Date().toISOString().slice(0,10) };
+        const success = await addRecord('Requests', newReq);
+        if(success) serviceRequests.push(newReq);
+        renderAll(); 
+    }
+    
+    async function updateRequest(id, data) { 
+        const success = await updateRecord('Requests', id, data);
+        if(success) await syncTable('Requests');
+        renderAll(); 
+    }
+    
+    async function deleteRequest(id) { 
+        if(confirm("Delete this request?")) { 
+            const success = await deleteRecord('Requests', id);
+            if(success) serviceRequests = serviceRequests.filter(r=>r.ID !== id);
+            renderAll(); 
+        } 
+    }
+    
+    async function exportToCSV(type, data) {
+        if (!data.length) { alert("No data to export"); return; }
+        let headers = Object.keys(data[0]);
+        let csv = headers.join(",") + "\n";
+        data.forEach(row => { 
+            csv += headers.map(h => `"${(row[h] || '').toString().replace(/"/g, '""')}"`).join(",") + "\n"; 
+        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `${type}_${new Date().toISOString().slice(0,10)}.csv`;
+        a.click();
+        updateSyncStatus(`📁 Exported ${type}`);
+    }
+    
+    // Modal Logic
+    function showModal(type, editItem = null) {
+        currentModalType = type;
+        currentEditItem = editItem;
+        const modal = document.getElementById('genericModal');
+        const title = document.getElementById('modalTitle');
+        const fieldsDiv = document.getElementById('modalFields');
+        title.innerText = editItem ? `✏️ Edit ${type.slice(0,-1)}` : `➕ Add New ${type.slice(0,-1)}`;
+        
+        let html = '';
+        if(type === 'employees') {
+            html = `<label>Full Name *</label><input id="field_name" value="${escapeHtml(editItem?.Name || '')}">
+                    <label>Role</label><input id="field_role" value="${escapeHtml(editItem?.Role || '')}">
+                    <label>Department</label><input id="field_department" value="${escapeHtml(editItem?.Department || '')}">
+                    <label>Email</label><input id="field_email" value="${escapeHtml(editItem?.Email || '')}">
+                    <label>Status</label><select id="field_status">
+                        <option ${editItem?.Status === 'Active' ? 'selected' : ''}>Active</option>
+                        <option ${editItem?.Status === 'Inactive' ? 'selected' : ''}>Inactive</option>
+                    </select>`;
+        } else if(type === 'tasks') {
+            html = `<label>Task Title *</label><input id="field_title" value="${escapeHtml(editItem?.Title || '')}">
+                    <label>Assigned To</label><input id="field_assignedTo" value="${escapeHtml(editItem?.AssignedTo || '')}">
+                    <label>Priority</label><select id="field_priority">
+                        <option ${editItem?.Priority === 'High' ? 'selected' : ''}>High</option>
+                        <option ${editItem?.Priority === 'Medium' ? 'selected' : ''}>Medium</option>
+                        <option ${editItem?.Priority === 'Low' ? 'selected' : ''}>Low</option>
+                    </select>
+                    <label>Status</label><select id="field_status">
+                        <option ${editItem?.Status === 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option ${editItem?.Status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                        <option ${editItem?.Status === 'Completed' ? 'selected' : ''}>Completed</option>
+                    </select>
+                    <label>Due Date</label><input type="date" id="field_dueDate" value="${editItem?.DueDate || ''}">`;
+        } else if(type === 'requests') {
+            html = `<label>Type</label><select id="field_type">
+                        <option ${editItem?.Type === 'SR' ? 'selected' : ''}>SR</option>
+                        <option ${editItem?.Type === 'ISR' ? 'selected' : ''}>ISR</option>
+                    </select>
+                    <label>Requester</label><input id="field_requester" value="${escapeHtml(editItem?.Requester || '')}">
+                    <label>Description</label><input id="field_description" value="${escapeHtml(editItem?.Description || '')}">
+                    <label>Status</label><select id="field_status">
+                        <option ${editItem?.Status === 'Open' ? 'selected' : ''}>Open</option>
+                        <option ${editItem?.Status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                        <option ${editItem?.Status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+                    </select>`;
+        }
+        fieldsDiv.innerHTML = html;
+        modal.style.display = 'flex';
+    }
+    
+    function closeModal() { 
+        document.getElementById('genericModal').style.display = 'none'; 
+        currentEditItem = null; 
+        currentModalType = null; 
+    }
+    
+    async function saveModal() {
+        const type = currentModalType;
+        if(type === 'employees') {
+            const name = document.getElementById('field_name')?.value;
+            if(!name) { alert("Name is required"); return; }
+            const data = { 
+                name, 
+                role: document.getElementById('field_role')?.value, 
+                department: document.getElementById('field_department')?.value, 
+                email: document.getElementById('field_email')?.value, 
+                status: document.getElementById('field_status')?.value 
+            };
+            if(currentEditItem) await updateEmployee(currentEditItem.ID, data);
+            else await addEmployee(data);
+        } else if(type === 'tasks') {
+            const title = document.getElementById('field_title')?.value;
+            if(!title) { alert("Task title required"); return; }
+            const data = { 
+                Title: title,
+                AssignedTo: document.getElementById('field_assignedTo')?.value,
+                Priority: document.getElementById('field_priority')?.value,
+                Status: document.getElementById('field_status')?.value,
+                DueDate: document.getElementById('field_dueDate')?.value,
+                Role: "General"
+            };
+            if(currentEditItem) await updateTask(currentEditItem.ID, data);
+            else await addTask({ title, assignedTo: data.AssignedTo, priority: data.Priority, status: data.Status, dueDate: data.DueDate });
+        } else if(type === 'requests') {
+            const requester = document.getElementById('field_requester')?.value;
+            if(!requester) { alert("Requester name needed"); return; }
+            const data = { 
+                Type: document.getElementById('field_type')?.value,
+                Requester: requester,
+                Description: document.getElementById('field_description')?.value,
+                Status: document.getElementById('field_status')?.value,
+                AssignedTo: "Admin"
+            };
+            if(currentEditItem) await updateRequest(currentEditItem.ID, data);
+            else await addRequest({ type: data.Type, requester: data.Requester, description: data.Description, status: data.Status, assignedTo: data.AssignedTo });
+        }
+        closeModal();
+    }
+    
+    // Render Functions
+    function renderDashboard() {
+        const activeTasks = tasks.filter(t=>t.Status !== "Completed").length;
+        const openRequests = serviceRequests.filter(r=>r.Status !== "Resolved").length;
+        const deptCount = {};
+        employees.forEach(e => { deptCount[e.Department] = (deptCount[e.Department] || 0) + 1; });
+        
+        let html = `<div class="stats-grid">
+            <div class="stat-card"><div class="stat-number">${employees.length}</div><div>👥 Total Employees</div><small>Marketing · HR · Backend · Admin</small></div>
+            <div class="stat-card"><div class="stat-number">${activeTasks}</div><div>📋 Active Tasks</div><small>In Progress / Pending</small></div>
+            <div class="stat-card"><div class="stat-number">${openRequests}</div><div>🛎️ Open SR/ISR</div><small>Service Requests</small></div>
+            <div class="stat-card"><div class="stat-number">${attendanceRecords.length}</div><div>✅ Attendance Records</div><small>Total logs</small></div>
+        </div>
+        <div class="section-title"><span>📌 Recent Tasks</span><button class="btn-sm" onclick="exportToCSV('tasks', tasks)"><i class="fas fa-download"></i> Export CSV</button></div>
+        <div class="panel-card">\n<table><thead><tr><th>Task</th><th>Assigned To</th><th>Priority</th><th>Status</th><th>Due Date</th></tr></thead><tbody>${tasks.slice(0,5).map(t => `<tr><td>${escapeHtml(t.Title)}</td><td>${escapeHtml(t.AssignedTo)}</td><td>${t.Priority}</td><td>${t.Status}</td><td>${t.DueDate || '-'}</td></tr>`).join('')}</tbody></table></div>
+        <div class="section-title"><span>📊 Department Breakdown</span></div>
+        <div class="panel-card" style="padding:20px"><canvas id="deptChart" style="max-height:280px"></canvas></div>`;
+        
+        document.getElementById('dynamicContent').innerHTML = html;
+        
+        setTimeout(() => {
+            const ctx = document.getElementById('deptChart')?.getContext('2d');
+            if(ctx) {
+                new Chart(ctx, { type: 'doughnut', data: { labels: Object.keys(deptCount), datasets: [{ data: Object.values(deptCount), backgroundColor: ['#2c7da0', '#52b788', '#f4a261', '#e76f51', '#9b59b6'] }] } });
+            }
+        }, 100);
+    }
+    
+    function renderEmployees() {
+        let html = `<div class="section-title"><span>🌟 All Employees (Marketing, HR, Backend, Admin Support)</span><div><button class="btn-sm" onclick="showModal('employees')"><i class="fas fa-user-plus"></i> Add Employee</button><button class="btn-sm" onclick="exportToCSV('employees', employees)"><i class="fas fa-file-excel"></i> Export CSV</button></div></div>
+        <div class="panel-card">\n<table><thead><tr><th>ID</th><th>Name</th><th>Role</th><th>Department</th><th>Email</th><th>Status</th><th>Join Date</th><th>Actions</th></tr></thead><tbody>${employees.map(e => `<tr><td>${e.ID}</td><td><i class="fas fa-user-circle"></i> ${escapeHtml(e.Name)}</td><td><span class="badge-role">${escapeHtml(e.Role)}</span></td><td>${escapeHtml(e.Department)}</td><td>${escapeHtml(e.Email)}</td><td><span class="badge">${e.Status}</span></td><td>${e.JoinDate || '-'}</td><td><i class="fas fa-edit action-icon" onclick='showModal("employees", ${JSON.stringify(e).replace(/'/g, "&#39;")})'></i> <i class="fas fa-trash action-icon" onclick="deleteEmployee('${e.ID}')"></i></td></tr>`).join('')}</tbody></table></div>`;
+        document.getElementById('dynamicContent').innerHTML = html;
+    }
+    
+    function renderTasks() {
+        let html = `<div class="section-title"><span>📋 Task Management (All Departments)</span><div><button class="btn-sm" onclick="showModal('tasks')"><i class="fas fa-plus"></i> New Task</button><button class="btn-sm" onclick="exportToCSV('tasks', tasks)"><i class="fas fa-download"></i> Export CSV</button></div></div>
+        <div class="panel-card">\n<table><thead><tr><th>ID</th><th>Title</th><th>Assigned To</th><th>Priority</th><th>Status</th><th>Due Date</th><th>Actions</th></tr></thead><tbody>${tasks.map(t => `<tr><td>${t.ID}</td><td>${escapeHtml(t.Title)}</td><td>${escapeHtml(t.AssignedTo)}</td><td>${t.Priority}</td><td>${t.Status}</td><td>${t.DueDate || '-'}</td><td><i class="fas fa-edit action-icon" onclick='showModal("tasks", ${JSON.stringify(t).replace(/'/g, "&#39;")})'></i> <i class="fas fa-trash action-icon" onclick="deleteTask('${t.ID}')"></i></td></tr>`).join('')}</tbody></table></div>`;
+        document.getElementById('dynamicContent').innerHTML = html;
+    }
+    
+    function renderAttendance() {
+        let html = `<div class="section-title"><span>⏰ Attendance Logs</span><div><button class="btn-sm" onclick="showCustomAttendanceModal()"><i class="fas fa-clock"></i> Mark Attendance</button><button class="btn-sm" onclick="exportToCSV('attendance', attendanceRecords)"><i class="fas fa-download"></i> Export CSV</button></div></div>
+        <div class="panel-card">\n<table><thead><tr><th>ID</th><th>Employee Name</th><th>Date</th><th>Check In</th><th>Check Out</th><th>Status</th><th>Actions</th></tr></thead><tbody>${attendanceRecords.map(a => `<tr><td>${a.ID}</td><td>${escapeHtml(a.EmployeeName)}</td><td>${a.Date}</td><td>${a.CheckIn}</td><td>${a.CheckOut}</td><td>${a.Status}</td><td><i class="fas fa-trash action-icon" onclick="deleteAttendance('${a.ID}')"></i></td></tr>`).join('')}</tbody></table></div>`;
+        document.getElementById('dynamicContent').innerHTML = html;
+    }
+    
+    function renderRequests() {
+        let html = `<div class="section-title"><span>📬 SR (Service Request) & ISR (Internal Support)</span><div><button class="btn-sm" onclick="showModal('requests')"><i class="fas fa-plus"></i> New Request</button><button class="btn-sm" onclick="exportToCSV('requests', serviceRequests)"><i class="fas fa-download"></i> Export CSV</button></div></div>
+        <div class="panel-card">\n<table><thead><tr><th>ID</th><th>Type</th><th>Requester</th><th>Description</th><th>Assigned To</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead><tbody>${serviceRequests.map(r => `<tr><td>${r.ID}</td><td><span class="badge">${r.Type}</span></td><td>${escapeHtml(r.Requester)}</td><td>${escapeHtml(r.Description)}</td><td>${escapeHtml(r.AssignedTo)}</td><td>${r.Status}</td><td>${r.CreatedAt}</td><td><i class="fas fa-edit action-icon" onclick='showModal("requests", ${JSON.stringify(r).replace(/'/g, "&#39;")})'></i> <i class="fas fa-trash action-icon" onclick="deleteRequest('${r.ID}')"></i></td></tr>`).join('')}</tbody></table></div>`;
+        document.getElementById('dynamicContent').innerHTML = html;
+    }
+    
+    function renderForms() {
+        document.getElementById('dynamicContent').innerHTML = `<div class="section-title"><span>📋 Google Forms Access</span></div>
+        <div class="form-card-grid">
+            <div class="form-card" onclick="window.open('https://forms.gle/MGu1Zc4X21zGDEy99','_blank')"><div class="form-icon"><i class="fas fa-ticket-alt" style="color:#e67e22;"></i></div><h3>Raise SR</h3><p>Service Request - Technical / Operational issues</p><span class="btn-sm">Open Form →</span></div>
+            <div class="form-card" onclick="window.open('https://forms.gle/QUFQA38W5gFiceH99','_blank')"><div class="form-icon"><i class="fas fa-hand-holding-heart" style="color:#1e6f5c;"></i></div><h3>Raise ISR</h3><p>Internal Service Request - HR / Admin / Academic</p><span class="btn-sm">Open Form →</span></div>
+            <div class="form-card" onclick="window.open('https://forms.gle/oiRKHVGW6rkAw7789','_blank')"><div class="form-icon"><i class="fas fa-clock" style="color:#2c7da0;"></i></div><h3>Mark Attendance</h3><p>Daily attendance - IN before 10am | OUT after 5pm</p><span class="btn-sm">Open Form →</span></div>
+        </div>
+        <div class="section-title"><span>📌 Instructions</span></div>
+        <div class="panel-card" style="padding:20px"><ul style="margin-left:20px; line-height:1.8"><li><strong>Raise SR:</strong> For technical issues, IT support, facility requests</li><li><strong>Raise ISR:</strong> For HR matters, admin support, academic assistance</li><li><strong>Mark Attendance:</strong> Mark IN before 10 AM, OUT after 5 PM daily</li></ul></div>`;
+    }
+    
+    function renderSheets() {
+        document.getElementById('dynamicContent').innerHTML = `<div class="section-title"><span>📊 Your Google Sheets Data</span></div>
+        <div class="sheet-card" onclick="window.open('https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit','_blank')"><div><i class="fas fa-table" style="font-size:24px; margin-right:12px;"></i> <strong>📑 Master Google Sheet</strong><br>4 Tabs: Employees, Tasks, Attendance, Requests</div><button class="btn-sm">Open Sheet →</button></div>
+        <div class="section-title"><span>ℹ️ About Your Data</span></div>
+        <div class="panel-card" style="padding:20px"><p>All data is stored in your Google Sheet. The Apps Script API provides unlimited free access to read/write data. No API limits, no monthly fees!</p></div>`;
+    }
+    
+    function renderReports() {
+        const marketingCount = employees.filter(e=>e.Department === 'Marketing').length;
+        const hrCount = employees.filter(e=>e.Department === 'Human Resources').length;
+        const devCount = employees.filter(e=>e.Department === 'Technology').length;
+        const adminCount = employees.filter(e=>e.Department === 'Administration').length;
+        
+        let html = `<div class="section-title"><span>📈 Analytics & Reports</span></div>
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-number">${marketingCount}</div><div>📢 Marketing</div></div>
+            <div class="stat-card"><div class="stat-number">${hrCount}</div><div>👥 HR</div></div>
+            <div class="stat-card"><div class="stat-number">${devCount}</div><div>💻 Backend Dev</div></div>
+            <div class="stat-card"><div class="stat-number">${adminCount}</div><div>📋 Admin Support</div></div>
+        </div>
+        <div class="section-title"><span>📊 Visual Analytics</span></div>
+        <div class="panel-card" style="padding:20px"><canvas id="reportChart" style="max-height:300px"></canvas></div>
+        <div class="section-title"><span>📎 Export All Reports</span></div>
+        <div class="panel-card" style="padding:20px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn-sm" onclick="exportToCSV('employees', employees)"><i class="fas fa-users"></i> Employees CSV</button>
+            <button class="btn-sm" onclick="exportToCSV('tasks', tasks)"><i class="fas fa-tasks"></i> Tasks CSV</button>
+            <button class="btn-sm" onclick="exportToCSV('attendance', attendanceRecords)"><i class="fas fa-clock"></i> Attendance CSV</button>
+            <button class="btn-sm" onclick="exportToCSV('requests', serviceRequests)"><i class="fas fa-headset"></i> SR/ISR CSV</button>
+        </div>`;
+        
+        document.getElementById('dynamicContent').innerHTML = html;
+        
+        setTimeout(() => {
+            const ctx = document.getElementById('reportChart')?.getContext('2d');
+            if(ctx) {
+                new Chart(ctx, { type: 'bar', data: { labels: ['Marketing', 'HR', 'Backend Dev', 'Admin Support', 'Other'], datasets: [{ label: 'Employee Count', data: [marketingCount, hrCount, devCount, adminCount, employees.length - (marketingCount+hrCount+devCount+adminCount)], backgroundColor: ['#2c7da0', '#52b788', '#f4a261', '#e76f51', '#9b59b6'] }] } });
+            }
+        }, 100);
+    }
+    
+    function renderAll() {
+        if(currentTab === 'dashboard') renderDashboard();
+        else if(currentTab === 'employees') renderEmployees();
+        else if(currentTab === 'tasks') renderTasks();
+        else if(currentTab === 'attendance') renderAttendance();
+        else if(currentTab === 'requests') renderRequests();
+        else if(currentTab === 'forms') renderForms();
+        else if(currentTab === 'sheets') renderSheets();
+        else if(currentTab === 'reports') renderReports();
+    }
+    
+    // Custom attendance modal
+    window.showCustomAttendanceModal = function() {
+        const name = prompt("Employee Name:", "e.g., Alisha Roy");
+        if(!name) return;
+        const timeIn = prompt("Check-in time (HH:MM AM/PM):", "09:00 AM");
+        const timeOut = prompt("Check-out time (HH:MM AM/PM):", "05:30 PM");
+        if(timeIn && timeOut) addAttendance({ employeeName: name, checkIn: timeIn, checkOut: timeOut, status: "Present" });
+    };
+    
+    // Make functions global
+    window.showModal = showModal;
+    window.deleteEmployee = deleteEmployee;
+    window.deleteTask = deleteTask;
+    window.deleteAttendance = deleteAttendance;
+    window.deleteRequest = deleteRequest;
+    window.exportToCSV = exportToCSV;
+    
+    // Login and Initialize
+    document.getElementById('doLoginBtn')?.addEventListener('click', async () => {
+        const role = document.getElementById('roleSelect').value;
+        const pwd = document.getElementById('loginPassword').value;
+        
+        if (!role) { 
+            document.getElementById('loginError').innerText = "Please select a role"; 
+            return; 
+        }
+        
+        if (pwd === "hub2025") {
+            document.getElementById('loginOverlay').style.display = 'none';
+            document.getElementById('adminApp').style.display = 'flex';
+            document.getElementById('currentRoleName').innerHTML = `<strong>${role}</strong> <i class="fas fa-check-circle"></i>`;
+            
+            await loadAllData();
+            renderAll();
+            
+            // Setup navigation
+            document.querySelectorAll('.nav-item').forEach(nav => {
+                nav.addEventListener('click', () => {
+                    currentTab = nav.getAttribute('data-tab');
+                    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                    nav.classList.add('active');
+                    renderAll();
+                });
+            });
+            
+            document.getElementById('logoutBtn')?.addEventListener('click', () => location.reload());
+            document.getElementById('modalSaveBtn')?.addEventListener('click', saveModal);
+            document.getElementById('modalCloseBtn')?.addEventListener('click', closeModal);
+        } else { 
+            document.getElementById('loginError').innerText = "Wrong password. Use 'hub2025' for demo access"; 
+        }
+    });
 </script>
 </body>
 </html>
